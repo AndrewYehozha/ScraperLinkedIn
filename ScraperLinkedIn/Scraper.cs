@@ -15,7 +15,7 @@ namespace ScraperLinkedIn
         //https://sites.google.com/a/chromium.org/chromedriver/downloads
         private IWebDriver driver;
         private IWait<IWebDriver> wait;
-        //private string token = "";
+        //private string token = "Test";
 
         public void Initialize()
         {
