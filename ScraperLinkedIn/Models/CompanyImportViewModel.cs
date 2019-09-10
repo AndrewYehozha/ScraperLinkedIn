@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-
-namespace ScraperLinkedIn.Models
+﻿namespace ScraperLinkedIn.Models
 {
-    class CompaniesEmployeesViewModel
+    class CompanyImportViewModel
     {
         public string OrganizationName { get; set; }
         public string OrganizationNameURL { get; set; }
@@ -10,8 +8,5 @@ namespace ScraperLinkedIn.Models
         public string HeadquartersLocation { get; set; }
         public string Website { get; set; }
         public string LinkedIn { get; set; }
-        public string LogoCompanyUrl { get; set; }
-        public string Specialties { get; set; }
-        public IEnumerable<ProfilesViewModel> Employees { get; set; }
     }
 }

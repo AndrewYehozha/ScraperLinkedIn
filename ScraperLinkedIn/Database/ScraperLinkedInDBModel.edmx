@@ -1,0 +1,355 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="ScraperLinkedInDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Companies">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrganizationName" Type="nvarchar" MaxLength="250" />
+          <Property Name="OrganizationURL" Type="nvarchar" MaxLength="500" />
+          <Property Name="Founders" Type="nvarchar" MaxLength="250" />
+          <Property Name="HeadquartersLocation" Type="nvarchar" MaxLength="250" />
+          <Property Name="Website" Type="nvarchar" MaxLength="150" />
+          <Property Name="LinkedInURL" Type="nvarchar" MaxLength="500" />
+          <Property Name="LogoUrl" Type="nvarchar" MaxLength="500" />
+          <Property Name="Specialties" Type="nvarchar(max)" />
+          <Property Name="ExecutionStatusID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="DebugLogs">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Remarks" Type="nvarchar" MaxLength="250" />
+          <Property Name="Logs" Type="nvarchar(max)" />
+          <Property Name="CreatedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="ExecutionStatuses">
+          <Key>
+            <PropertyRef Name="ExecutionStatusID" />
+          </Key>
+          <Property Name="ExecutionStatusID" Type="int" Nullable="false" />
+          <Property Name="StatusName" Type="nvarchar" MaxLength="75" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Profiles">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="125" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="125" />
+          <Property Name="FullName" Type="nvarchar" MaxLength="250" />
+          <Property Name="Job" Type="nvarchar" MaxLength="250" />
+          <Property Name="ProfileUrl" Type="nvarchar" MaxLength="500" />
+          <Property Name="AllSkills" Type="nvarchar(max)" />
+          <Property Name="ExecutionStatusID" Type="int" Nullable="false" />
+          <Property Name="CompanyID" Type="int" Nullable="false" />
+          <Property Name="ProfileStatusID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ProfileStatuses">
+          <Key>
+            <PropertyRef Name="ProfileStatusID" />
+          </Key>
+          <Property Name="ProfileStatusID" Type="int" Nullable="false" />
+          <Property Name="StatusName" Type="nvarchar" MaxLength="75" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Companies_ExecutionStatuses">
+          <End Role="ExecutionStatuses" Type="Self.ExecutionStatuses" Multiplicity="1" />
+          <End Role="Companies" Type="Self.Companies" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ExecutionStatuses">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Principal>
+            <Dependent Role="Companies">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Profiles_Companies">
+          <End Role="Companies" Type="Self.Companies" Multiplicity="1" />
+          <End Role="Profiles" Type="Self.Profiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Companies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Profiles">
+              <PropertyRef Name="CompanyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Profiles_ExecutionStatuses">
+          <End Role="ExecutionStatuses" Type="Self.ExecutionStatuses" Multiplicity="1" />
+          <End Role="Profiles" Type="Self.Profiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ExecutionStatuses">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Principal>
+            <Dependent Role="Profiles">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Profiles_ProfileStatuses">
+          <End Role="ProfileStatuses" Type="Self.ProfileStatuses" Multiplicity="1" />
+          <End Role="Profiles" Type="Self.Profiles" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProfileStatuses">
+              <PropertyRef Name="ProfileStatusID" />
+            </Principal>
+            <Dependent Role="Profiles">
+              <PropertyRef Name="ProfileStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ScraperLinkedInDBModelStoreContainer">
+          <EntitySet Name="Companies" EntityType="Self.Companies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DebugLogs" EntityType="Self.DebugLogs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ExecutionStatuses" EntityType="Self.ExecutionStatuses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Profiles" EntityType="Self.Profiles" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ProfileStatuses" EntityType="Self.ProfileStatuses" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Companies_ExecutionStatuses" Association="Self.FK_Companies_ExecutionStatuses">
+            <End Role="ExecutionStatuses" EntitySet="ExecutionStatuses" />
+            <End Role="Companies" EntitySet="Companies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Profiles_Companies" Association="Self.FK_Profiles_Companies">
+            <End Role="Companies" EntitySet="Companies" />
+            <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Profiles_ExecutionStatuses" Association="Self.FK_Profiles_ExecutionStatuses">
+            <End Role="ExecutionStatuses" EntitySet="ExecutionStatuses" />
+            <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Profiles_ProfileStatuses" Association="Self.FK_Profiles_ProfileStatuses">
+            <End Role="ProfileStatuses" EntitySet="ProfileStatuses" />
+            <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="ScraperLinkedInDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Company">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrganizationName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="OrganizationURL" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Founders" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="HeadquartersLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Website" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="LinkedInURL" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="LogoUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Specialties" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ExecutionStatusID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ExecutionStatus" Relationship="Self.FK_Companies_ExecutionStatuses" FromRole="Companies" ToRole="ExecutionStatuses" />
+          <NavigationProperty Name="Profiles" Relationship="Self.FK_Profiles_Companies" FromRole="Companies" ToRole="Profiles" />
+        </EntityType>
+        <EntityType Name="DebugLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Remarks" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Logs" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="ExecutionStatus">
+          <Key>
+            <PropertyRef Name="ExecutionStatusID" />
+          </Key>
+          <Property Name="ExecutionStatusID" Type="Int32" Nullable="false" />
+          <Property Name="StatusName" Type="String" MaxLength="75" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Companies" Relationship="Self.FK_Companies_ExecutionStatuses" FromRole="ExecutionStatuses" ToRole="Companies" />
+          <NavigationProperty Name="Profiles" Relationship="Self.FK_Profiles_ExecutionStatuses" FromRole="ExecutionStatuses" ToRole="Profiles" />
+        </EntityType>
+        <EntityType Name="Profile">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" MaxLength="125" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" MaxLength="125" FixedLength="false" Unicode="true" />
+          <Property Name="FullName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Job" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="ProfileUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="AllSkills" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ExecutionStatusID" Type="Int32" Nullable="false" />
+          <Property Name="CompanyID" Type="Int32" Nullable="false" />
+          <Property Name="ProfileStatusID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Company" Relationship="ScraperLinkedInDBModel.FK_Profiles_Companies" FromRole="Profiles" ToRole="Companies" />
+          <NavigationProperty Name="ExecutionStatus" Relationship="Self.FK_Profiles_ExecutionStatuses" FromRole="Profiles" ToRole="ExecutionStatuses" />
+          <NavigationProperty Name="ProfileStatus" Relationship="Self.FK_Profiles_ProfileStatuses" FromRole="Profiles" ToRole="ProfileStatuses" />
+        </EntityType>
+        <EntityType Name="ProfileStatus">
+          <Key>
+            <PropertyRef Name="ProfileStatusID" />
+          </Key>
+          <Property Name="ProfileStatusID" Type="Int32" Nullable="false" />
+          <Property Name="StatusName" Type="String" MaxLength="75" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Profiles" Relationship="Self.FK_Profiles_ProfileStatuses" FromRole="ProfileStatuses" ToRole="Profiles" />
+        </EntityType>
+        <Association Name="FK_Companies_ExecutionStatuses">
+          <End Role="ExecutionStatuses" Type="Self.ExecutionStatus" Multiplicity="1" />
+          <End Role="Companies" Type="Self.Company" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ExecutionStatuses">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Principal>
+            <Dependent Role="Companies">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Profiles_Companies">
+          <End Role="Companies" Type="Self.Company" Multiplicity="1" />
+          <End Role="Profiles" Type="Self.Profile" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Companies">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="Profiles">
+              <PropertyRef Name="CompanyID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Profiles_ExecutionStatuses">
+          <End Role="ExecutionStatuses" Type="Self.ExecutionStatus" Multiplicity="1" />
+          <End Role="Profiles" Type="Self.Profile" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ExecutionStatuses">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Principal>
+            <Dependent Role="Profiles">
+              <PropertyRef Name="ExecutionStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Profiles_ProfileStatuses">
+          <End Role="ProfileStatuses" Type="Self.ProfileStatus" Multiplicity="1" />
+          <End Role="Profiles" Type="Self.Profile" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ProfileStatuses">
+              <PropertyRef Name="ProfileStatusID" />
+            </Principal>
+            <Dependent Role="Profiles">
+              <PropertyRef Name="ProfileStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="ScraperLinkedInDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Companies" EntityType="Self.Company" />
+          <EntitySet Name="DebugLogs" EntityType="Self.DebugLog" />
+          <EntitySet Name="ExecutionStatuses" EntityType="Self.ExecutionStatus" />
+          <EntitySet Name="Profiles" EntityType="Self.Profile" />
+          <EntitySet Name="ProfileStatuses" EntityType="Self.ProfileStatus" />
+          <AssociationSet Name="FK_Companies_ExecutionStatuses" Association="Self.FK_Companies_ExecutionStatuses">
+            <End Role="ExecutionStatuses" EntitySet="ExecutionStatuses" />
+            <End Role="Companies" EntitySet="Companies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Profiles_Companies" Association="Self.FK_Profiles_Companies">
+            <End Role="Companies" EntitySet="Companies" />
+            <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Profiles_ExecutionStatuses" Association="Self.FK_Profiles_ExecutionStatuses">
+            <End Role="ExecutionStatuses" EntitySet="ExecutionStatuses" />
+            <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Profiles_ProfileStatuses" Association="Self.FK_Profiles_ProfileStatuses">
+            <End Role="ProfileStatuses" EntitySet="ProfileStatuses" />
+            <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="ScraperLinkedInDBModelStoreContainer" CdmEntityContainer="ScraperLinkedInDBEntities">
+          <EntitySetMapping Name="Companies">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Company">
+              <MappingFragment StoreEntitySet="Companies">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="OrganizationName" ColumnName="OrganizationName" />
+                <ScalarProperty Name="OrganizationURL" ColumnName="OrganizationURL" />
+                <ScalarProperty Name="Founders" ColumnName="Founders" />
+                <ScalarProperty Name="HeadquartersLocation" ColumnName="HeadquartersLocation" />
+                <ScalarProperty Name="Website" ColumnName="Website" />
+                <ScalarProperty Name="LinkedInURL" ColumnName="LinkedInURL" />
+                <ScalarProperty Name="LogoUrl" ColumnName="LogoUrl" />
+                <ScalarProperty Name="Specialties" ColumnName="Specialties" />
+                <ScalarProperty Name="ExecutionStatusID" ColumnName="ExecutionStatusID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DebugLogs">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.DebugLog">
+              <MappingFragment StoreEntitySet="DebugLogs">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="Logs" ColumnName="Logs" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ExecutionStatuses">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.ExecutionStatus">
+              <MappingFragment StoreEntitySet="ExecutionStatuses">
+                <ScalarProperty Name="ExecutionStatusID" ColumnName="ExecutionStatusID" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Profiles">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Profile">
+              <MappingFragment StoreEntitySet="Profiles">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="FullName" ColumnName="FullName" />
+                <ScalarProperty Name="Job" ColumnName="Job" />
+                <ScalarProperty Name="ProfileUrl" ColumnName="ProfileUrl" />
+                <ScalarProperty Name="AllSkills" ColumnName="AllSkills" />
+                <ScalarProperty Name="ExecutionStatusID" ColumnName="ExecutionStatusID" />
+                <ScalarProperty Name="CompanyID" ColumnName="CompanyID" />
+                <ScalarProperty Name="ProfileStatusID" ColumnName="ProfileStatusID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ProfileStatuses">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.ProfileStatus">
+              <MappingFragment StoreEntitySet="ProfileStatuses">
+                <ScalarProperty Name="ProfileStatusID" ColumnName="ProfileStatusID" />
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
