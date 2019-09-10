@@ -77,7 +77,5 @@ namespace ScraperLinkedIn
 
             scraper.Close();
         }
-
-
     }
 }

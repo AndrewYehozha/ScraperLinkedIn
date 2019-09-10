@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="328e73d8e7f74f0585a139ec66115511" Name="Diagram1">
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.Company" Width="1.5" PointX="3" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.DebugLog" Width="1.5" PointX="5.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.ExecutionStatus" Width="1.5" PointX="0.75" PointY="2" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.Profile" Width="1.5" PointX="5.25" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.ProfileStatus" Width="1.5" PointX="3" PointY="6.125" IsExpanded="true" />
+        <AssociationConnector Association="ScraperLinkedInDBModel.FK_Companies_ExecutionStatuses" ManuallyRouted="false" />
+        <AssociationConnector Association="ScraperLinkedInDBModel.FK_Profiles_Companies" ManuallyRouted="false" />
+        <AssociationConnector Association="ScraperLinkedInDBModel.FK_Profiles_ExecutionStatuses" ManuallyRouted="false" />
+        <AssociationConnector Association="ScraperLinkedInDBModel.FK_Profiles_ProfileStatuses" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

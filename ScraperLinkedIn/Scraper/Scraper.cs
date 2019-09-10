@@ -9,35 +9,37 @@ using OpenQA.Selenium.Chrome;
 using ScraperLinkedIn.Email;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Services;
+using ScraperLinkedIn.Types;
 
 namespace ScraperLinkedIn.Scrapers
 {
     class Scraper
     {
-        private EmailGenerator EmailGenerator { get; set; }
-
         //https://sites.google.com/a/chromium.org/chromedriver/downloads
         private IWebDriver driver;
         private IJavaScriptExecutor js;
-        private CompanyService _companyService;
+
+        private CompaniesService _companyService;
+        private ProfilesService _profilesService;
         private DataService _dataService;
 
         private int CompanyBatchSize;
+        private int ProfileBatchSize;
         private int AmountProfiles;
-        private int CountCompaniesEmployees = 0;
-        private int CountCompanies = 1;
-        private List<CompaniesEmployeesViewModel> companiesEmployees;
 
         private const string Line = "-----------------------------------------------------------------------";
+
+        public Scraper()
+        {
+            _companyService = new CompaniesService();
+            _dataService = new DataService();
+            _profilesService = new ProfilesService();
+        }
 
         public void Initialize()
         {
             try
             {
-                EmailGenerator = new EmailGenerator();
-                _companyService = new CompanyService();
-                _dataService = new DataService();
-
                 if (driver == null)
                 {
                     Console.WriteLine($"\n{ Line }");
@@ -54,7 +56,7 @@ namespace ScraperLinkedIn.Scrapers
                     Console.WriteLine($"{ Line }\n");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"\n{ Line }");
                 Console.WriteLine($"Error initialize scraper:\n{ Line }\n{ ex }");
@@ -64,7 +66,7 @@ namespace ScraperLinkedIn.Scrapers
 
         public void Run()
         {
-            if (!Int32.TryParse(ConfigurationManager.AppSettings["COMPANY_BATCH_SIZE"], out CompanyBatchSize))
+            if (!int.TryParse(ConfigurationManager.AppSettings["COMPANY_BATCH_SIZE"], out CompanyBatchSize))
             {
                 Console.WriteLine($"\n{ Line }");
                 Console.WriteLine($"Company batch size must be an integer.\n{ Line }\nPlease, check the value of <COMPANY_BATCH_SIZE> in App.config.");
@@ -72,7 +74,15 @@ namespace ScraperLinkedIn.Scrapers
                 return;
             }
 
-            if (!Int32.TryParse(ConfigurationManager.AppSettings["AMOUNT_PROFILES"], out AmountProfiles))
+            if (!int.TryParse(ConfigurationManager.AppSettings["PROFILE_BATCH_SIZE"], out ProfileBatchSize))
+            {
+                Console.WriteLine($"\n{ Line }");
+                Console.WriteLine($"Company batch size must be an integer.\n{ Line }\nPlease, check the value of <PROFILE_BATCH_SIZE> in App.config.");
+                Console.WriteLine($"{ Line }\n\n");
+                return;
+            }
+
+            if (!int.TryParse(ConfigurationManager.AppSettings["AMOUNT_PROFILES"], out AmountProfiles))
             {
                 Console.WriteLine($"\n{ Line }");
                 Console.WriteLine($"Company batch size must be an integer.\n{ Line }\nPlease, check the value of <AMOUNT_PROFILES> in App.config.");
@@ -104,17 +114,17 @@ namespace ScraperLinkedIn.Scrapers
             }
 
             var result = new List<ResultViewModel>();
-            companiesEmployees = new List<CompaniesEmployeesViewModel>();
 
+            //Scraper process
             while (AmountProfiles >= 0) //TODO
             {
-                var companies = _companyService.GetCompany();
-
-                //Scraper process
+                var companies = _companyService.GetCompanies(CompanyBatchSize);
                 GetCompaniesEmployees(companies);
-                GetEmployeeProfiles();
 
-                foreach (var item in _dataService.SearchSuitableDirectorsCompanies(companiesEmployees))
+                var profiles = _profilesService.GetProfiles(ProfileBatchSize);
+                GetEmployeeProfiles(profiles);
+
+                foreach (var item in _dataService.SearchSuitableDirectorsCompanies(new List<CompanyEmployeesViewModel>()))
                 {
                     result.Add(item);
                     AmountProfiles--;
@@ -124,11 +134,11 @@ namespace ScraperLinkedIn.Scrapers
             Close();
         }
 
-        private void GetCompaniesEmployees(IEnumerable<CompaniesEmployeesViewModel> companies)
+        private void GetCompaniesEmployees(IEnumerable<CompanyEmployeesViewModel> companies)
         {
-            Console.WriteLine($"\nCompanies:\n[\n{ string.Join(",\n", companies.Skip(CountCompanies).Take(CompanyBatchSize).Select(x => x.LinkedIn)) }\n]");
+            Console.WriteLine($"\nCompanies:\n[\n{ string.Join(",\n", companies.Select(x => x.LinkedIn)) }\n]");
 
-            foreach (var company in companies.Skip(CountCompanies).Take(CompanyBatchSize))
+            foreach (var company in companies)
             {
                 Thread.Sleep(30000); //A break between requests.
 
@@ -137,8 +147,22 @@ namespace ScraperLinkedIn.Scrapers
 
                 try
                 {
+                    driver.FindElement(By.ClassName("join-form-container"));
+
+                    Console.WriteLine($"\n{ Line }");
+                    Console.WriteLine($"Invalid Token.\n{ Line }\nPlease, check the value of <TOKEN> in App.config.");
+                    Console.WriteLine($"{ Line }\n\n");
+
+                    _companyService.UpdateCompaniesWithStatusFailed(companies);
+                    return;
+                }
+                catch { }
+
+                try
+                {
                     driver.FindElement(By.ClassName("not-found__main-heading")); // Not found
                     Console.WriteLine($"Could not scrape company, because { company.LinkedIn } page was not found");
+                    company.ExecutionStatus = ExecutionStatuses.Failed;
                     continue;
                 }
                 catch { }
@@ -147,30 +171,28 @@ namespace ScraperLinkedIn.Scrapers
                 {
                     driver.FindElement(By.ClassName("error-container")); // Stop searching if incorrect url
                     Console.WriteLine($"Could not scrape company, because the page { company.LinkedIn } could not be loaded");
+                    company.ExecutionStatus = ExecutionStatuses.Failed;
                     continue;
                 }
                 catch { }
 
-                string logoCompanyUrl = string.Empty;
                 try
                 {
                     var logoCompanyUrlTemp = driver.FindElement(By.ClassName("org-top-card-primary-content__logo")).GetAttribute("src");
                     if (logoCompanyUrlTemp.Contains("https://media.licdn.com"))
                     {
-                        logoCompanyUrl = logoCompanyUrlTemp;
+                        company.LogoCompanyUrl = logoCompanyUrlTemp;
                     }
                 }
                 catch { }
 
-
                 driver.FindElement(By.CssSelector("a[data-control-name='page_member_main_nav_about_tab']")).Click();
 
-                string specialties = string.Empty;
                 try
                 {
                     if ((new List<string> { "Специализация", "Specialties" }).Contains(driver.FindElement(By.CssSelector(".overflow-hidden dt:last-of-type")).Text))
                     {
-                        specialties = driver.FindElement(By.CssSelector(".overflow-hidden dd:last-of-type")).Text;
+                        company.Specialties = driver.FindElement(By.CssSelector(".overflow-hidden dd:last-of-type")).Text;
                     }
                 }
                 catch { }
@@ -182,153 +204,182 @@ namespace ScraperLinkedIn.Scrapers
                 catch
                 {
                     Console.WriteLine($"Error: Could not scrape company { company.LinkedIn } because No employees found");
-                    continue;
+                    company.ExecutionStatus = ExecutionStatuses.Success;
                 }
 
-                Thread.Sleep(2000); // Waiting for page to load
-                var paginationUrl = driver.Url;
-                var employees = new List<ProfilesViewModel>();
+                var employees = new List<ProfileViewModel>();
 
-                driver.Navigate().GoToUrl($"{ paginationUrl }&page=1");
-
-                try
+                if (company.ExecutionStatus == ExecutionStatuses.Queued)
                 {
-                    driver.FindElement(By.ClassName("not-found")); // Page not found
-                    Console.WriteLine($"Page { company.LinkedIn } not found");
-                    continue;
-                }
-                catch { }
-
-                for (int i = 1; ; i++)
-                {
-                    driver.Navigate().GoToUrl($"{ paginationUrl }&page={ i }"); // Pagination Employees
-                    js.ExecuteScript("window.scrollBy(0,1000)");
                     Thread.Sleep(2000); // Waiting for page to load
+                    var paginationUrl = driver.Url;
+
+                    driver.Navigate().GoToUrl($"{ paginationUrl }&page=1");
 
                     try
                     {
-                        driver.FindElement(By.ClassName("search-no-results__container")); // Stop searching if next page is missing
-                        Console.WriteLine($"Scrap All pages for company: { company.LinkedIn }");
-                        break;
-                    }
-                    catch { }
-
-                    js.ExecuteScript("window.scrollBy(0,1000)");
-                    Thread.Sleep(1000); // Waiting for page to load
-
-                    foreach (var item in driver.FindElements(By.CssSelector(".search-result__info > a"))) // Link selection for employees
-                    {
-                        string href = item.GetAttribute("href");
-                        if (href != $"{ paginationUrl }&page={ i }#")
-                        {
-                            employees.Add(new ProfilesViewModel { ProfileUrl = item.GetAttribute("href") });
-                        }
-                    }
-
-                    Console.WriteLine($"Getting employees for page { i }...");
-                }
-
-                companiesEmployees.Add(
-                    new CompaniesEmployeesViewModel {
-                        Founders = company.Founders,
-                        HeadquartersLocation = company.HeadquartersLocation,
-                        LinkedIn = company.LinkedIn,
-                        LogoCompanyUrl = logoCompanyUrl,
-                        OrganizationName = company.OrganizationName,
-                        OrganizationNameURL = company.OrganizationNameURL,
-                        Specialties = specialties,
-                        Employees = employees,
-                        Website = company.Website
-                    }
-                );
-
-                CountCompanies++;
-            }
-        }
-
-        private void GetEmployeeProfiles()
-        {
-            foreach (var companyEmployees in companiesEmployees.Skip(CountCompaniesEmployees))
-            {
-                foreach (var employee in companyEmployees.Employees)
-                {
-                    Thread.Sleep(10000); //A break between requests.
-
-                    Console.WriteLine($"\n\nOpening profile: { employee.ProfileUrl }");
-                    driver.Navigate().GoToUrl(employee.ProfileUrl);
-
-                    try
-                    {
-                        driver.FindElement(By.ClassName("profile-unavailable")); // Stop searching if incorrect url
-                        Console.WriteLine($"Could not scrape profile, because this profile { employee.ProfileUrl } is not available");
+                        driver.FindElement(By.ClassName("not-found")); // Page not found
+                        Console.WriteLine($"Page { company.LinkedIn } not found");
                         continue;
                     }
                     catch { }
 
-                    Console.WriteLine($"Scrolling to load all data of the profile...");
-
-                    string firstname = string.Empty;
-                    string lastName = string.Empty;
-                    string fullName = string.Empty;
-                    try
+                    for (int i = 1; ; i++)
                     {
-                        fullName = driver.FindElement(By.CssSelector(".pv-top-card-v3--list .break-words")).Text;
-                        firstname = fullName.Split(' ')[0];
-                        lastName = fullName.Split(' ')[1];
-                    }
-                    catch { }
+                        driver.Navigate().GoToUrl($"{ paginationUrl }&page={ i }"); // Pagination Employees
+                        js.ExecuteScript("window.scrollBy(0,1000)");
+                        Thread.Sleep(2000); // Waiting for page to load
 
-                    string job = string.Empty;
-                    try
-                    {
-                        job = driver.FindElement(By.CssSelector(".flex-1 h2")).Text;
-                    }
-                    catch { }
-
-                    string allSkills = string.Empty;
-                    var arrSkills = new List<string>();
-
-
-                    for (int i = 0; i < 12; i++)
-                    {
                         try
                         {
-                            js.ExecuteScript("window.scrollBy(0,500)");
-                            Thread.Sleep(1000);
+                            driver.FindElement(By.ClassName("join-form-container"));
 
-                            driver.FindElement(By.ClassName("pv-skills-section__additional-skills")).Click(); //Find Show more button
-                            Thread.Sleep(750); // Waiting for loading block skills
+                            Console.WriteLine($"\n{ Line }");
+                            Console.WriteLine($"Invalid Token.\n{ Line }\nPlease, check the value of <TOKEN> in App.config.");
+                            Console.WriteLine($"{ Line }\n\n");
 
-                            foreach (var skill in driver.FindElements(By.ClassName("pv-skill-category-entity__name-text")))
-                            {
-                                arrSkills.Add(skill.Text);
-                            }
+                            company.Employees = employees;
+                            _companyService.UpdateCompany(company);
+                            return;
+                        }
+                        catch { }
 
-                            allSkills = string.Join(", ", arrSkills);
+                        try
+                        {
+                            driver.FindElement(By.ClassName("search-no-results__container")); // Stop searching if next page is missing
+                            Console.WriteLine($"Scrap All pages for company: { company.LinkedIn }");
                             break;
                         }
                         catch { }
-                    }
 
-                    if (!string.IsNullOrEmpty(allSkills.Trim()) || !string.IsNullOrEmpty(job.Trim()))
-                    {
-                        employee.FirstName = firstname;
-                        employee.LastName = lastName;
-                        employee.FullName = fullName;
-                        employee.Job = job;
-                        employee.Skills = arrSkills;
-                        employee.AllSkills = allSkills;
-                        employee.IsRead = true;
+                        js.ExecuteScript("window.scrollBy(0,1000)");
+                        Thread.Sleep(1000); // Waiting for page to load
 
-                        Console.WriteLine($"All data loaded");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Could not scrape { employee.ProfileUrl } because: Could not load the profile");
+                        foreach (var item in driver.FindElements(By.CssSelector(".search-result__info > a"))) // Link selection for employees
+                        {
+                            string href = item.GetAttribute("href");
+                            if (href != $"{ paginationUrl }&page={ i }#")
+                            {
+                                employees.Add(new ProfileViewModel { ProfileUrl = item.GetAttribute("href"), CompanyID = company.Id });
+                            }
+                        }
+
+                        Console.WriteLine($"Getting employees for page { i }...");
                     }
                 }
 
-                CountCompaniesEmployees++;
+                company.Employees = employees;
+                company.ExecutionStatus = ExecutionStatuses.Success;
+
+                _companyService.UpdateCompany(company);
+            }
+        }
+
+        private void GetEmployeeProfiles(IEnumerable<ProfileViewModel> employees)
+        {
+            Console.WriteLine($"\nCompanies:\n[\n{ string.Join(",\n", employees.Select(x => x.ProfileUrl)) }\n]");
+
+            foreach (var employee in employees)
+            {
+                Thread.Sleep(5000); //A break between requests.
+
+                Console.WriteLine($"\n\nOpening profile: { employee.ProfileUrl }");
+                driver.Navigate().GoToUrl(employee.ProfileUrl);
+
+                try
+                {
+                    driver.FindElement(By.ClassName("join-form-container"));
+
+                    Console.WriteLine($"\n{ Line }");
+                    Console.WriteLine($"Invalid Token.\n{ Line }\nPlease, check the value of <TOKEN> in App.config.");
+                    Console.WriteLine($"{ Line }\n\n");
+
+                    _profilesService.UpdateProfilesWithStatusFailed(employees);
+                    return;
+                }
+                catch { }
+
+                try
+                {
+                    driver.FindElement(By.ClassName("profile-unavailable")); // Stop searching if incorrect url
+                    Console.WriteLine($"Could not scrape profile, because this profile { employee.ProfileUrl } is not available");
+                    employee.ExecutionStatusID = ExecutionStatuses.Failed;
+                    continue;
+                }
+                catch { }
+
+                Console.WriteLine($"Scrolling to load all data of the profile...");
+
+                try
+                {
+                    employee.FullName = driver.FindElement(By.CssSelector(".pv-top-card-v3--list .break-words")).Text;
+                    employee.FirstName = employee.FullName.Split(' ')[0];
+                    employee.LastName = employee.FullName.Split(' ')[1];
+                }
+                catch { }
+
+                try
+                {
+                    employee.Job = driver.FindElement(By.CssSelector(".flex-1 h2")).Text ?? "";
+                }
+                catch { }
+
+                for (int i = 0; i < 12; i++)
+                {
+                    try
+                    {
+                        js.ExecuteScript("window.scrollBy(0,500)");
+                        Thread.Sleep(1000);
+
+                        try
+                        {
+                            driver.FindElement(By.ClassName("pv-skills-section__additional-skills")).Click(); //Find Show more button
+                        }
+                        catch { }
+
+                        Thread.Sleep(750); // Waiting for loading block skills
+
+                        try
+                        {
+                            driver.FindElement(By.ClassName("pv-skill-category-entity__name-text"));
+
+                            js.ExecuteScript("window.scrollBy(0,500)");
+                            Thread.Sleep(1000);
+
+                            try
+                            {
+                                driver.FindElement(By.ClassName("pv-skills-section__additional-skills")).Click(); //Find Show more button
+                            }
+                            catch { }
+                        }
+                        catch { continue; }
+
+                        var arrSkills = new List<string>();
+                        foreach (var skill in driver.FindElements(By.ClassName("pv-skill-category-entity__name-text")))
+                        {
+                            arrSkills.Add(skill.Text);
+                        }
+
+                        employee.AllSkills = string.Join(", ", arrSkills) ?? "";
+                        break;
+                    }
+                    catch { }
+                }
+
+                if (!string.IsNullOrEmpty(employee.AllSkills) || !string.IsNullOrEmpty(employee.Job))
+                {
+                    employee.ExecutionStatusID = ExecutionStatuses.Success;
+
+                    Console.WriteLine($"All data loaded");
+                }
+                else
+                {
+                    employee.ExecutionStatusID = ExecutionStatuses.Failed;
+
+                    Console.WriteLine($"Could not scrape { employee.ProfileUrl } because: Could not load the profile");
+                }
+
+                _profilesService.UpdateProfile(employee);
             }
         }
 

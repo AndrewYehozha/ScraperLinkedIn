@@ -18,7 +18,7 @@ namespace ScraperLinkedIn.Services
             _emailGenerator = new EmailGenerator();
         }
 
-        public IEnumerable<ResultViewModel> SearchSuitableDirectorsCompanies(IEnumerable<CompaniesEmployeesViewModel> companiesEmployees)
+        public IEnumerable<ResultViewModel> SearchSuitableDirectorsCompanies(IEnumerable<CompanyEmployeesViewModel> companiesEmployees)
         {
             var result = new List<ResultViewModel>();
 

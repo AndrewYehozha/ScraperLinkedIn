@@ -54,6 +54,9 @@
     <Reference Include="ARSoft.Tools.Net, Version=2.2.2.0, Culture=neutral, PublicKeyToken=1940454cd762ec57, processorArchitecture=MSIL">
       <HintPath>..\packages\ARSoft.Tools.Net.2.2.2\lib\net45\ARSoft.Tools.Net.dll</HintPath>
     </Reference>
+    <Reference Include="AutoMapper, Version=9.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.9.0.0\lib\net461\AutoMapper.dll</HintPath>
+    </Reference>
     <Reference Include="BouncyCastle.Crypto, Version=1.7.4137.9688, Culture=neutral, PublicKeyToken=a4292a325f69b123, processorArchitecture=MSIL">
       <HintPath>..\packages\BouncyCastle.1.7.0\lib\Net40-Client\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
@@ -170,18 +173,52 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Database\Company.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\DebugLog.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\ExecutionStatus.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\ObjectMappers\MapperConfigurationModel.cs" />
+    <Compile Include="Database\Profile.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\ProfileStatus.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\ScraperLinkedInDBModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScraperLinkedInDBModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\ScraperLinkedInDBModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Database\ScraperLinkedInDBModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Email\EmailGenerator.cs" />
-    <Compile Include="Models\CompaniesEmployeesViewModel.cs" />
-    <Compile Include="Models\ProfilesViewModel.cs" />
+    <Compile Include="Models\CompanyEmployeesViewModel.cs" />
+    <Compile Include="Models\CompanyImportViewModel.cs" />
+    <Compile Include="Models\ProfileViewModel.cs" />
     <Compile Include="Models\ResultViewModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\CompanyRepository.cs" />
+    <Compile Include="Repositories\CompaniesRepository.cs" />
+    <Compile Include="Repositories\ProfilesRepository.cs" />
     <Compile Include="Scheduler\MyScheduler.cs" />
     <Compile Include="SearchParameters\RolesSearchParameters.cs" />
     <Compile Include="SearchParameters\TechnologiesSearchParameters.cs" />
-    <Compile Include="Services\CompanyService.cs" />
+    <Compile Include="Services\CompaniesService.cs" />
     <Compile Include="Services\DataService.cs" />
+    <Compile Include="Services\ProfilesService.cs" />
     <Compile Include="Services\SchedulerService.cs" />
     <Compile Include="Scraper\Scraper.cs" />
     <Compile Include="Types\ExecutionStatuses.cs" />
@@ -190,11 +227,28 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EntityDeploy Include="Database\ScraperLinkedInDBModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ScraperLinkedInDBModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Database\ScraperLinkedInDBModel.edmx.diagram">
+      <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="chromedriver.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Database\ScraperLinkedInDBModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+      <LastGenOutput>ScraperLinkedInDBModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Database\ScraperLinkedInDBModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+      <LastGenOutput>ScraperLinkedInDBModel.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>
@@ -212,9 +266,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Database\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
