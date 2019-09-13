@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using ScraperLinkedIn.Email;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Services;
 using ScraperLinkedIn.Types;
@@ -22,19 +21,19 @@ namespace ScraperLinkedIn.Scrapers
         private CompaniesService _companyService;
         private ProfilesService _profilesService;
         private DataService _dataService;
+        private LoggerService _loggerService;
 
         private int CompanyBatchSize;
         private int ProfileBatchSize;
         private string Login;
         private string Password;
 
-        private const string Line = "-----------------------------------------------------------------------";
-
         public Scraper()
         {
             _companyService = new CompaniesService();
             _dataService = new DataService();
             _profilesService = new ProfilesService();
+            _loggerService = new LoggerService();
         }
 
         public void Initialize()
@@ -43,8 +42,6 @@ namespace ScraperLinkedIn.Scrapers
             {
                 if (driver == null)
                 {
-                    Console.WriteLine($"\n{ Line }");
-
                     var options = new ChromeOptions();
                     options.AddArgument("no-sandbox");
 
@@ -53,15 +50,11 @@ namespace ScraperLinkedIn.Scrapers
 
                     driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                     driver.Manage().Window.Maximize();
-
-                    Console.WriteLine($"{ Line }\n");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\n{ Line }");
-                Console.WriteLine($"Error initialize scraper:\n{ Line }\n{ ex }");
-                Console.WriteLine($"{ Line }\n\n");
+                _loggerService.Add("Error initialize scraper", ex.ToString());
             }
         }
 
@@ -69,24 +62,20 @@ namespace ScraperLinkedIn.Scrapers
         {
             if (!int.TryParse(ConfigurationManager.AppSettings["COMPANY_BATCH_SIZE"], out CompanyBatchSize))
             {
-                Console.WriteLine($"\n{ Line }");
-                Console.WriteLine($"Company batch size must be an integer.\n{ Line }\nPlease, check the value of <COMPANY_BATCH_SIZE> in App.config.");
-                Console.WriteLine($"{ Line }\n\n");
+                _loggerService.Add("Error", $"Company batch size must be an integer. Please, check the value of <COMPANY_BATCH_SIZE> in App.config.");
                 return;
             }
 
             if (!int.TryParse(ConfigurationManager.AppSettings["PROFILE_BATCH_SIZE"], out ProfileBatchSize))
             {
-                Console.WriteLine($"\n{ Line }");
-                Console.WriteLine($"Company batch size must be an integer.\n{ Line }\nPlease, check the value of <PROFILE_BATCH_SIZE> in App.config.");
-                Console.WriteLine($"{ Line }\n\n");
+                _loggerService.Add("Error", $"Company batch size must be an integer. Please, check the value of <PROFILE_BATCH_SIZE> in App.config.");
                 return;
             }
 
             Login = ConfigurationManager.AppSettings["LOGIN"];
             Password = ConfigurationManager.AppSettings["PASSWORD"];
 
-            Console.WriteLine($"Connecting to LinkedIn...");
+            _loggerService.Add("Connecting to LinkedIn...", "");
 
             var cookie = new Cookie("li_at", ConfigurationManager.AppSettings["TOKEN"], ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
 
@@ -97,13 +86,11 @@ namespace ScraperLinkedIn.Scrapers
             try // Validation of the entered token
             {
                 var profileName = driver.FindElement(By.ClassName("profile-rail-card__actor-link")).Text;
-                Console.WriteLine($"Connected successfully as { profileName }");
+                _loggerService.Add($"Connected successfully as", profileName);
             }
             catch
             {
-                Console.WriteLine($"\n{ Line }");
-                Console.WriteLine($"Invalid Token.\n{ Line }\nPlease, check the value of <TOKEN> in App.config.");
-                Console.WriteLine($"{ Line }\n\n");
+                _loggerService.Add("Invalid Token. Please, check the value of <TOKEN> in App.config.");
 
                 if (!SignIn())
                 {
@@ -112,11 +99,14 @@ namespace ScraperLinkedIn.Scrapers
                 }
             }
 
+            _loggerService.Add("Start scraped data processing", "");
+
             //Scraped data processing
             var searchCompanies = _companyService.GetCompaniesForSearch();
             _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
 
 
+            _loggerService.Add("Start scraper process", "");
             //Scraper process
 
             //var rawProfilesCount = _profilesService.GetCountRawProfiles();
@@ -139,18 +129,19 @@ namespace ScraperLinkedIn.Scrapers
             GetEmployeeProfiles(profiles);
             //}
 
+            _loggerService.Add("End scraper process", "");
             Close();
         }
 
         private void GetCompaniesEmployees(IEnumerable<CompanyEmployeesViewModel> companies)
         {
-            Console.WriteLine($"\nCompanies URLs to scrape: [\n{ string.Join(",\n", companies.Select(x => $"\t{ x.LinkedIn }")) }\n]");
+            _loggerService.Add("Companies URLs to scrape", $"[\n{ string.Join(",\n", companies.Select(x => $"\t{ x.LinkedIn }")) }\n]");
 
             foreach (var company in companies)
             {
                 Thread.Sleep(30000); //A break between requests.
 
-                Console.WriteLine($"\n\nGetting employees for company with url: { company.LinkedIn }");
+                _loggerService.Add("Getting employees for company with url", company.LinkedIn);
                 driver.Navigate().GoToUrl(company.LinkedIn);
 
                 if (!CheckAuthorization() && !SignIn())
@@ -161,7 +152,7 @@ namespace ScraperLinkedIn.Scrapers
                 try
                 {
                     driver.FindElement(By.ClassName("nav-header__guest-nav"));
-                    Console.WriteLine($"Find and apply for a job to contact { company.LinkedIn } and learn more about this company");
+                    _loggerService.Add("Find and apply for a job to contact and learn more about this company", company.LinkedIn);
 
                     company.ExecutionStatus = ExecutionStatuses.Failed;
                     _companyService.UpdateCompany(company);
@@ -173,7 +164,7 @@ namespace ScraperLinkedIn.Scrapers
                 try
                 {
                     driver.FindElement(By.ClassName("not-found__main-heading")); // Not found
-                    Console.WriteLine($"Could not scrape company, because { company.LinkedIn } page was not found");
+                    _loggerService.Add("Could not scrape company, because this page was not found", company.LinkedIn);
 
                     company.ExecutionStatus = ExecutionStatuses.Failed;
                     _companyService.UpdateCompany(company);
@@ -185,7 +176,7 @@ namespace ScraperLinkedIn.Scrapers
                 try
                 {
                     driver.FindElement(By.ClassName("profile-unavailable")); // Not available
-                    Console.WriteLine($"Could not scrape company, because this profile { company.LinkedIn } is not available");
+                    _loggerService.Add("Could not scrape company, because this profile is not available", company.LinkedIn);
 
                     company.ExecutionStatus = ExecutionStatuses.Failed;
                     _companyService.UpdateCompany(company);
@@ -197,7 +188,7 @@ namespace ScraperLinkedIn.Scrapers
                 try
                 {
                     driver.FindElement(By.ClassName("error-container")); // Stop searching if incorrect url
-                    Console.WriteLine($"Could not scrape company, because the page { company.LinkedIn } could not be loaded");
+                    _loggerService.Add("Could not scrape company, because the page could not be loaded", company.LinkedIn);
 
                     company.ExecutionStatus = ExecutionStatuses.Failed;
                     _companyService.UpdateCompany(company);
@@ -231,7 +222,7 @@ namespace ScraperLinkedIn.Scrapers
                 }
                 catch
                 {
-                    Console.WriteLine($"Error: Could not scrape company { company.LinkedIn } because No employees found");
+                    _loggerService.Add("Error: Could not scrape company because No employees found", company.LinkedIn);
                     company.ExecutionStatus = ExecutionStatuses.Success;
                 }
 
@@ -245,7 +236,8 @@ namespace ScraperLinkedIn.Scrapers
                     try
                     {
                         driver.FindElement(By.ClassName("not-found")); // Page not found
-                        Console.WriteLine($"Page { company.LinkedIn } not found");
+                        _loggerService.Add("This page not found", company.LinkedIn);
+
                         continue;
                     }
                     catch { }
@@ -265,7 +257,8 @@ namespace ScraperLinkedIn.Scrapers
                         try
                         {
                             driver.FindElement(By.ClassName("search-no-results__container")); // Stop searching if next page is missing
-                            Console.WriteLine($"Scrap All pages for company: { company.LinkedIn }");
+                            _loggerService.Add("Scrap All pages for company", company.LinkedIn);
+
                             break;
                         }
                         catch { }
@@ -282,7 +275,7 @@ namespace ScraperLinkedIn.Scrapers
                             }
                         }
 
-                        Console.WriteLine($"Getting employees for page { i }...");
+                        _loggerService.Add($"Getting employees for page { i }...");
                     }
                 }
 
@@ -293,13 +286,13 @@ namespace ScraperLinkedIn.Scrapers
 
         private void GetEmployeeProfiles(IEnumerable<ProfileViewModel> employees)
         {
-            Console.WriteLine($"\nProfiles URLs to scrape: [\n{ string.Join(",\n", employees.Select(x => $"\t{ x.ProfileUrl }")) }\n]");
+            _loggerService.Add("Profiles URLs to scrape", $"[\n{ string.Join(",\n", employees.Select(x => $"\t{ x.ProfileUrl }")) }\n]");
 
             foreach (var employee in employees)
             {
                 Thread.Sleep(5000); //A break between requests.
+                _loggerService.Add("Opening profile", employee.ProfileUrl);
 
-                Console.WriteLine($"\n\nOpening profile: { employee.ProfileUrl }");
                 driver.Navigate().GoToUrl(employee.ProfileUrl);
 
                 if (!CheckAuthorization() && !SignIn())
@@ -310,7 +303,7 @@ namespace ScraperLinkedIn.Scrapers
                 try
                 {
                     driver.FindElement(By.ClassName("profile-unavailable")); // Stop searching if incorrect url
-                    Console.WriteLine($"Could not scrape profile, because this profile { employee.ProfileUrl } is not available");
+                    _loggerService.Add("Could not scrape profile, because this profile is not available", employee.ProfileUrl);
 
                     employee.ExecutionStatus = ExecutionStatuses.Failed;
                     _profilesService.UpdateProfile(employee);
@@ -319,7 +312,7 @@ namespace ScraperLinkedIn.Scrapers
                 }
                 catch { }
 
-                Console.WriteLine($"Scrolling to load all data of the profile...");
+                _loggerService.Add("Scrolling to load all data of the profile...");
 
                 try
                 {
@@ -375,13 +368,12 @@ namespace ScraperLinkedIn.Scrapers
 
                 if (!string.IsNullOrEmpty(employee.AllSkills) || !string.IsNullOrEmpty(employee.Job))
                 {
-                    Console.WriteLine($"All data loaded");
+                    _loggerService.Add("All data loaded");
                 }
                 else
                 {
+                    _loggerService.Add("Could not scrape because: Could not load the profile", employee.ProfileUrl);
                     employee.ExecutionStatus = ExecutionStatuses.Failed;
-
-                    Console.WriteLine($"Could not scrape { employee.ProfileUrl } because: Could not load the profile");
                 }
 
                 _profilesService.UpdateProfile(employee);
@@ -393,10 +385,7 @@ namespace ScraperLinkedIn.Scrapers
             try
             {
                 driver.FindElement(By.CssSelector(".join-form-container,.login-form"));
-
-                Console.WriteLine($"\n{ Line }");
-                Console.WriteLine($"Invalid Token.\n{ Line }\nPlease, check the value of <TOKEN> in App.config.");
-                Console.WriteLine($"{ Line }\n\n");
+                _loggerService.Add("Error", "Invalid Token. Please, check the value of <TOKEN> in App.config.");
 
                 return false;
             }
@@ -444,7 +433,10 @@ namespace ScraperLinkedIn.Scrapers
                     chromeDriver.Kill();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _loggerService.Add("Error", ex.ToString());
+            }
         }
     }
 }
