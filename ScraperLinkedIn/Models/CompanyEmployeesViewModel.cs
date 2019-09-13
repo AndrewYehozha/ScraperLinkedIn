@@ -9,6 +9,6 @@ namespace ScraperLinkedIn.Models
         public string LogoCompanyUrl { get; set; }
         public string Specialties { get; set; }
         public ExecutionStatuses ExecutionStatus { get; set; }
-        public IEnumerable<ProfileViewModel> Employees { get; set; }
+        public List<ProfileViewModel> Employees { get; set; }
     }
 }

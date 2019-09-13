@@ -190,19 +190,22 @@
       <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Database\ScraperLinkedInDBModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>ScraperLinkedInDBModel.Context.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Database\ScraperLinkedInDBModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Database\ScraperLinkedInDBModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
       <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Include="Database\SuitableProfile.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Email\EmailGenerator.cs" />
     <Compile Include="Models\CompanyEmployeesViewModel.cs" />
@@ -213,6 +216,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\CompaniesRepository.cs" />
     <Compile Include="Repositories\ProfilesRepository.cs" />
+    <Compile Include="Repositories\SuitableProfileRepository.cs" />
     <Compile Include="Scheduler\MyScheduler.cs" />
     <Compile Include="SearchParameters\RolesSearchParameters.cs" />
     <Compile Include="SearchParameters\TechnologiesSearchParameters.cs" />
@@ -221,16 +225,13 @@
     <Compile Include="Services\ProfilesService.cs" />
     <Compile Include="Services\SchedulerService.cs" />
     <Compile Include="Scraper\Scraper.cs" />
+    <Compile Include="Services\SuitableProfileService.cs" />
     <Compile Include="Types\ExecutionStatuses.cs" />
     <Compile Include="Types\IntervalTypes.cs" />
     <Compile Include="Types\ProfileStatuses.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EntityDeploy Include="Database\ScraperLinkedInDBModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>ScraperLinkedInDBModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
     <None Include="Database\ScraperLinkedInDBModel.edmx.diagram">
       <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
     </None>
@@ -241,13 +242,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Database\ScraperLinkedInDBModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ScraperLinkedInDBModel.Context.cs</LastGenOutput>
     </Content>
     <Content Include="Database\ScraperLinkedInDBModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>ScraperLinkedInDBModel.edmx</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ScraperLinkedInDBModel.cs</LastGenOutput>
     </Content>
   </ItemGroup>
@@ -266,7 +267,12 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EntityDeploy Include="Database\ScraperLinkedInDBModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ScraperLinkedInDBModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

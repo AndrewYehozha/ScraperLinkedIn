@@ -16,10 +16,14 @@ namespace ScraperLinkedIn.Services
             _profilesService = new ProfilesService();
             _companyRepository = new CompaniesRepository();
         }
-
         public IEnumerable<CompanyEmployeesViewModel> GetCompanies(int company_batch_size)
         {
             return _companyRepository.GetCompanies(company_batch_size);
+        }
+
+        public IEnumerable<CompanyEmployeesViewModel> GetCompaniesForSearch()
+        {
+            return _companyRepository.GetCompaniesForSearch();
         }
 
         public void UpdateCompany(CompanyEmployeesViewModel companyEmployees)

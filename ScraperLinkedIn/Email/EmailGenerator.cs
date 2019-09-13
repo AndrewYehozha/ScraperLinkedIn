@@ -24,7 +24,7 @@ namespace ScraperLinkedIn.Email
 
             foreach (var email in Generator(firstName, lastName, companyDomain)) //Execution time: 25-30s
             {
-                if (!isCorrectDomain) { break; }
+                if (!isCorrectDomain || Emails.Count > 4) { break; }
 
                 if (!EmailValidator.Validate(email, out result))
                 {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Types;
+using System.Collections.Generic;
 
 namespace ScraperLinkedIn.Database.ObjectMappers
 {
@@ -21,7 +22,12 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(ci => ci.HeadquartersLocation, opt => opt.MapFrom(c => c.HeadquartersLocation))
                            .ForMember(ci => ci.OrganizationName, opt => opt.MapFrom(c => c.OrganizationName))
                            .ForMember(ci => ci.OrganizationNameURL, opt => opt.MapFrom(c => c.OrganizationURL))
-                           .ForMember(ci => ci.Website, opt => opt.MapFrom(c => c.Website));
+                           .ForMember(ci => ci.Website, opt => opt.MapFrom(c => c.Website))
+                           .ForMember(ci => ci.Categories, opt => opt.MapFrom(c => c.Industry))
+                           .ForMember(ci => ci.Twitter, opt => opt.MapFrom(c => c.Twitter))
+                           .ForMember(ci => ci.Facebook, opt => opt.MapFrom(c => c.Facebook))
+                           .ForMember(ci => ci.PhoneNumber, opt => opt.MapFrom(c => c.PhoneNumber))
+                           .ForMember(ci => ci.NumberofEmployees, opt => opt.MapFrom(c => c.AmountEmployees));
 
                         cfg.CreateMap<CompanyImportViewModel, Company>()
                            .ForMember(c => c.LinkedInURL, opt => opt.MapFrom(ci => ci.LinkedIn))
@@ -29,7 +35,12 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.HeadquartersLocation, opt => opt.MapFrom(ci => ci.HeadquartersLocation))
                            .ForMember(c => c.OrganizationName, opt => opt.MapFrom(ci => ci.OrganizationName))
                            .ForMember(c => c.OrganizationURL, opt => opt.MapFrom(ci => ci.OrganizationNameURL))
-                           .ForMember(c => c.Website, opt => opt.MapFrom(ci => ci.Website));
+                           .ForMember(c => c.Website, opt => opt.MapFrom(ci => ci.Website))
+                           .ForMember(ci => ci.Industry, opt => opt.MapFrom(c => c.Categories))
+                           .ForMember(ci => ci.Twitter, opt => opt.MapFrom(c => c.Twitter))
+                           .ForMember(ci => ci.Facebook, opt => opt.MapFrom(c => c.Facebook))
+                           .ForMember(ci => ci.PhoneNumber, opt => opt.MapFrom(c => c.PhoneNumber))
+                           .ForMember(ci => ci.AmountEmployees, opt => opt.MapFrom(c => c.NumberofEmployees));
 
                         cfg.CreateMap<Company, CompanyEmployeesViewModel>()
                            .ForMember(ce => ce.Id, opt => opt.MapFrom(c => c.Id))
@@ -41,8 +52,8 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(ce => ce.Website, opt => opt.MapFrom(c => c.Website))
                            .ForMember(ce => ce.LogoCompanyUrl, opt => opt.MapFrom(c => c.LogoUrl))
                            .ForMember(ce => ce.Specialties, opt => opt.MapFrom(c => c.Specialties))
-                           .ForMember(ce => ce.ExecutionStatus, opt => opt.MapFrom(c => (ExecutionStatuses)c.ExecutionStatusID));
-                        //.ForMember(ce => ce.Employees, opt => opt.MapFrom(c => c.Profiles != null ? Instance.Map<IEnumerable<Profile>, IEnumerable<ProfilesViewModel>>(c.Profiles) : new List<ProfilesViewModel>()));
+                           .ForMember(ce => ce.ExecutionStatus, opt => opt.MapFrom(c => (ExecutionStatuses)c.ExecutionStatusID))
+                            .ForMember(ce => ce.Employees, opt => opt.MapFrom(c => c.Profiles != null ? Instance.Map<IEnumerable<Profile>, IEnumerable<ProfileViewModel>>(c.Profiles) : new List<ProfileViewModel>()));
 
                         cfg.CreateMap<CompanyEmployeesViewModel, Company>()
                            .ForMember(c => c.Id, opt => opt.MapFrom(ce => ce.Id))
@@ -67,9 +78,10 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.Job, opt => opt.MapFrom(ce => ce.Job))
                            .ForMember(c => c.ProfileUrl, opt => opt.MapFrom(ce => ce.ProfileUrl))
                            .ForMember(c => c.AllSkills, opt => opt.MapFrom(ce => ce.AllSkills))
-                           .ForMember(c => c.ExecutionStatusID, opt => opt.MapFrom(ce => (ExecutionStatuses)ce.ExecutionStatusID))
+                           .ForMember(c => c.ExecutionStatus, opt => opt.MapFrom(ce => (ExecutionStatuses)ce.ExecutionStatusID))
                            .ForMember(c => c.CompanyID, opt => opt.MapFrom(ce => ce.CompanyID))
-                           .ForMember(c => c.ProfileStatusID, opt => opt.MapFrom(ce => ce.ProfileStatusID))
+                           .ForMember(c => c.ProfileStatus, opt => opt.MapFrom(ce => (ProfileStatuses)ce.ProfileStatusID))
+                           .ForMember(c => c.DataСreation, opt => opt.MapFrom(ce => ce.DataСreation))
                            .ForMember(c => c.Skills, opt => opt.Ignore());
 
                         cfg.CreateMap<ProfileViewModel, Profile>()
@@ -80,12 +92,16 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.Job, opt => opt.MapFrom(ce => ce.Job))
                            .ForMember(c => c.ProfileUrl, opt => opt.MapFrom(ce => ce.ProfileUrl))
                            .ForMember(c => c.AllSkills, opt => opt.MapFrom(ce => ce.AllSkills))
-                           .ForMember(c => c.ExecutionStatusID, opt => opt.MapFrom(ce => (int)ce.ExecutionStatusID))
                            .ForMember(c => c.CompanyID, opt => opt.MapFrom(ce => ce.CompanyID))
-                           .ForMember(c => c.ProfileStatusID, opt => opt.MapFrom(ce => ce.ProfileStatusID))
+                           .ForMember(c => c.ExecutionStatusID, opt => opt.MapFrom(ce => (int)ce.ExecutionStatus))
+                           .ForMember(c => c.ProfileStatusID, opt => opt.MapFrom(ce => (int)ce.ProfileStatus))
+                           .ForMember(c => c.DataСreation, opt => opt.MapFrom(ce => ce.DataСreation))
                            .ForMember(c => c.Company, opt => opt.Ignore())
                            .ForMember(c => c.ExecutionStatus, opt => opt.Ignore())
                            .ForMember(c => c.ProfileStatus, opt => opt.Ignore());
+
+                        cfg.CreateMap<SuitableProfile, ResultViewModel>();
+                        cfg.CreateMap<ResultViewModel, SuitableProfile>();
                     });
                     _instance = config.CreateMapper();
                 }
