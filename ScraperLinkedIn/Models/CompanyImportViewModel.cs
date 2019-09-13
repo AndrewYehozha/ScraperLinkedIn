@@ -8,5 +8,10 @@
         public string HeadquartersLocation { get; set; }
         public string Website { get; set; }
         public string LinkedIn { get; set; }
+        public string Categories { get; set; }
+        public string Twitter { get; set; }
+        public string Facebook { get; set; }
+        public string PhoneNumber { get; set; }
+        public string NumberofEmployees { get; set; }
     }
 }

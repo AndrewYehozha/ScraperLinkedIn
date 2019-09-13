@@ -4,7 +4,6 @@ using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Types;
 using System.Collections.Generic;
 using System.Linq;
-using Youworks.Text;
 
 namespace ScraperLinkedIn.Repositories
 {
@@ -12,17 +11,31 @@ namespace ScraperLinkedIn.Repositories
     {
         public IEnumerable<CompanyEmployeesViewModel> GetCompanies(int company_batch_size)
         {
-            var result = new List<Company>();
-
             using (var db = new ScraperLinkedInDBEntities())
             {
-                result = db.Companies.Where(x => !string.IsNullOrEmpty(x.Website) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Take(company_batch_size).ToList();
+                var result = db.Companies.Where(x => !string.IsNullOrEmpty(x.LinkedInURL.Trim()) && !string.IsNullOrEmpty(x.Website.Trim()) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Take(company_batch_size);
 
-                result.ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
+                result.ToList().ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
                 db.SaveChanges();
-            }
 
-            return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(result);
+                return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(result);
+            }
+        }
+
+        public IEnumerable<CompanyEmployeesViewModel> GetCompaniesForSearch()
+        {
+            using (var db = new ScraperLinkedInDBEntities())
+            {
+                var lastProcessedCompanyId = db.Profiles.Where(x => (x.ExecutionStatusID == (int)ExecutionStatuses.Queued) && (x.ProfileStatusID != (int)ProfileStatuses.Undefined)).OrderByDescending(d => d.Id).Select(x => x.CompanyID).FirstOrDefault();
+
+                var unsuitableCompanies = db.Companies.Where(x => (x.Id < lastProcessedCompanyId) && (x.ExecutionStatusID == (int)ExecutionStatuses.Success) && x.Profiles.Any(y => (y.ExecutionStatusID != (int)ExecutionStatuses.Success)) && !x.Profiles.Any(y => (y.ProfileStatusID == (int)ProfileStatuses.Developer))).ToList();
+                unsuitableCompanies.ToList().ForEach(x => x.Profiles.ToList().ForEach(y => y.ExecutionStatusID = (int)ExecutionStatuses.Success));
+                db.SaveChanges();
+
+                var result = db.Companies.Where(x => (x.Id < lastProcessedCompanyId) && (x.ExecutionStatusID == (int)ExecutionStatuses.Success) && x.Profiles.Any(y => (y.ProfileStatusID == (int)ProfileStatuses.Developer) && (y.ExecutionStatusID != (int)ExecutionStatuses.Success))).ToList();
+
+                return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(result);
+            }
         }
 
         public void UpdateCompany(Company company)
@@ -31,8 +44,8 @@ namespace ScraperLinkedIn.Repositories
             {
                 var companyDB = db.Companies.Where(x => x.Id == company.Id).FirstOrDefault();
 
-                companyDB.LogoUrl = company.LogoUrl;
-                companyDB.Specialties = company.Specialties;
+                companyDB.LogoUrl = company.LogoUrl ?? "";
+                companyDB.Specialties = company.Specialties ?? "";
                 companyDB.ExecutionStatusID = company.ExecutionStatusID;
 
                 db.SaveChanges();
@@ -48,28 +61,6 @@ namespace ScraperLinkedIn.Repositories
                 var companiesDB = db.Companies.Where(x => failedCompaniesIDs.Contains(x.Id)).ToList();
                 companiesDB.ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Failed);
 
-                db.SaveChanges();
-            }
-        }
-
-        public void ImpotCompaniesCSVFile(string filePath = @"D:\CompaniesInfo\companies-23-08-2019.csv")
-        {
-            var companies = new List<CompanyImportViewModel>() { };
-            var sourceCompanies = new CSVSource<CompanyImportViewModel>(filePath);
-
-            while (sourceCompanies.HasMore)
-            {
-                companies.Add(sourceCompanies.ReadNext());
-            }
-
-            var companiesDB = MapperConfigurationModel.Instance.Map<IEnumerable<CompanyImportViewModel>, IEnumerable<Company>>(companies);
-
-            using (var db = new ScraperLinkedInDBEntities())
-            {
-                foreach (var item in companiesDB)
-                {
-                    db.Companies.Add(item);
-                }
                 db.SaveChanges();
             }
         }

@@ -1,4 +1,5 @@
-﻿using ScraperLinkedIn.Scheduler;
+﻿using ScraperLinkedIn.Database.ObjectMappers;
+using ScraperLinkedIn.Scheduler;
 using ScraperLinkedIn.Scrapers;
 using ScraperLinkedIn.Types;
 using System;
@@ -29,7 +30,6 @@ namespace ScraperLinkedIn
             }
 
             Enum.TryParse(ConfigurationManager.AppSettings["INTERVAL_TYPE"], out IntervalType);
-
 
             var scraper = new Scraper();
             scraper.Initialize();
