@@ -215,6 +215,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\CompaniesRepository.cs" />
+    <Compile Include="Repositories\LoggerRepository.cs" />
     <Compile Include="Repositories\ProfilesRepository.cs" />
     <Compile Include="Repositories\SuitableProfileRepository.cs" />
     <Compile Include="Scheduler\MyScheduler.cs" />
@@ -222,6 +223,7 @@
     <Compile Include="SearchParameters\TechnologiesSearchParameters.cs" />
     <Compile Include="Services\CompaniesService.cs" />
     <Compile Include="Services\DataService.cs" />
+    <Compile Include="Services\LoggerService.cs" />
     <Compile Include="Services\ProfilesService.cs" />
     <Compile Include="Services\SchedulerService.cs" />
     <Compile Include="Scraper\Scraper.cs" />

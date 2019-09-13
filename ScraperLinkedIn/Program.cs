@@ -24,7 +24,7 @@ namespace ScraperLinkedIn
                 Console.WriteLine("TimeStart must be a DateTime.\nPlease, check the value of <TIME_START> in App.config.\n\n");
             }
 
-            if(!Int32.TryParse(ConfigurationManager.AppSettings["INTERVAL"], out Interval))
+            if(!int.TryParse(ConfigurationManager.AppSettings["INTERVAL"], out Interval))
             {
                 Console.WriteLine("Interval must be an integer.\nPlease, check the value of <INTERVAL> in App.config.\n\n");
             }
@@ -33,7 +33,6 @@ namespace ScraperLinkedIn
 
             var scraper = new Scraper();
             scraper.Initialize();
-            scraper.Run();
 
             switch (IntervalType)
             {
