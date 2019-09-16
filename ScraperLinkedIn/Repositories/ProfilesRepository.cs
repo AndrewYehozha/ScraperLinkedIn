@@ -54,6 +54,7 @@ namespace ScraperLinkedIn.Repositories
 
                 foreach (var profile in profiles.Where(x => !addProfiles.Contains(x.ProfileUrl)))
                 {
+                    profile.DataСreation = DateTime.Now;
                     db.Profiles.Add(profile);
                 }
 

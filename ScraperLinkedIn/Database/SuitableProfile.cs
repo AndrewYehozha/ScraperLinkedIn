@@ -1,4 +1,4 @@
-namespace ScraperLinkedIn.Database
+﻿namespace ScraperLinkedIn.Database
 {
     public partial class SuitableProfile
     {
@@ -22,5 +22,6 @@ namespace ScraperLinkedIn.Database
         public string Twitter { get; set; }
         public string Facebook { get; set; }
         public string TechStack { get; set; }
+        public System.DateTime DateTimeCreation { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -105,29 +105,30 @@ namespace ScraperLinkedIn.Scrapers
             var searchCompanies = _companyService.GetCompaniesForSearch();
             _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
 
-
-            _loggerService.Add("Start scraper process", "");
             //Scraper process
+            _loggerService.Add("Start scraper process", "");
 
-            //var rawProfilesCount = _profilesService.GetCountRawProfiles();
+            var rawProfilesCount = _profilesService.GetCountRawProfiles();
 
-            //if (rawProfilesCount < 200)
-            //{
-            var newPofilesCount = _profilesService.GetCountNewProfiles();
-
-            while (newPofilesCount <= ProfileBatchSize)
+            if (rawProfilesCount < ProfileBatchSize)
             {
-                var companies = _companyService.GetCompanies(CompanyBatchSize);
-                GetCompaniesEmployees(companies);
+                var newPofilesCount = _profilesService.GetCountNewProfiles();
 
-                newPofilesCount = _profilesService.GetCountNewProfiles();
+                while (newPofilesCount <= ProfileBatchSize * 1.6)
+                {
+                    var companies = _companyService.GetCompanies(CompanyBatchSize);
+                    GetCompaniesEmployees(companies);
+
+                    newPofilesCount = _profilesService.GetCountNewProfiles();
+                }
             }
-            //}
-            //else
-            //{
+            else
+            {
+                ProfileBatchSize *= 2;
+            }
+
             var profiles = _profilesService.GetProfiles(ProfileBatchSize);
             GetEmployeeProfiles(profiles);
-            //}
 
             _loggerService.Add("End scraper process", "");
             Close();
@@ -141,8 +142,16 @@ namespace ScraperLinkedIn.Scrapers
             {
                 Thread.Sleep(30000); //A break between requests.
 
-                _loggerService.Add("Getting employees for company with url", company.LinkedIn);
-                driver.Navigate().GoToUrl(company.LinkedIn);
+                try
+                {
+                    _loggerService.Add("Getting employees for company with url", company.LinkedIn);
+                    driver.Navigate().GoToUrl(company.LinkedIn);
+                }
+                catch (WebDriverException ex)
+                {
+                    driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                    _loggerService.Add($"Error opening company page with url: { company.LinkedIn }", ex.ToString());
+                }
 
                 if (!CheckAuthorization() && !SignIn())
                 {
@@ -291,9 +300,17 @@ namespace ScraperLinkedIn.Scrapers
             foreach (var employee in employees)
             {
                 Thread.Sleep(5000); //A break between requests.
-                _loggerService.Add("Opening profile", employee.ProfileUrl);
 
-                driver.Navigate().GoToUrl(employee.ProfileUrl);
+                try
+                {
+                    _loggerService.Add("Opening profile", employee.ProfileUrl);
+                    driver.Navigate().GoToUrl(employee.ProfileUrl);
+                }
+                catch (WebDriverException ex)
+                {
+                    driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                    _loggerService.Add($"Error opening profile page with url: { employee.ProfileUrl }", ex.ToString());
+                }
 
                 if (!CheckAuthorization() && !SignIn())
                 {
@@ -333,20 +350,21 @@ namespace ScraperLinkedIn.Scrapers
 
                 employee.AllSkills = string.Empty;
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     try
                     {
                         try
                         {
-                            js.ExecuteScript("window.scrollBy(0,500)");
-                            Thread.Sleep(1000);
-
+                            js.ExecuteScript("window.scrollBy(0,750)");
                             driver.FindElement(By.ClassName("pv-skill-category-entity__name-text"));
 
                             try
                             {
+                                js.ExecuteScript("window.scrollBy(0,200)");
+                                Thread.Sleep(500);
                                 driver.FindElement(By.ClassName("pv-skills-section__additional-skills")).Click(); //Find Show more button
+                                js.ExecuteScript("window.scrollBy(0,250)");
                             }
                             catch { }
                         }
@@ -398,8 +416,9 @@ namespace ScraperLinkedIn.Scrapers
         {
             driver.Navigate().GoToUrl("https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin");
 
-            Thread.Sleep(2000); //Loading Sign in page
+            Thread.Sleep(3000); //Loading Sign in page
 
+            driver.FindElement(By.Id("username")).Clear();
             driver.FindElement(By.Id("username")).SendKeys(Login); //Authorization process
             Thread.Sleep(500);
             driver.FindElement(By.Id("password")).SendKeys(Password);
