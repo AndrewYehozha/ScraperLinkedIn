@@ -1,4 +1,5 @@
 ﻿using ScraperLinkedIn.Database;
+using System;
 using System.Collections.Generic;
 
 namespace ScraperLinkedIn.Repositories
@@ -11,6 +12,8 @@ namespace ScraperLinkedIn.Repositories
             {
                 foreach (var suitableProfile in suitableProfiles)
                 {
+                    suitableProfile.DateTimeCreation = DateTime.Now;
+
                     db.SuitableProfiles.Add(suitableProfile);
                 }
 

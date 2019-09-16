@@ -101,7 +101,8 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.ProfileStatus, opt => opt.Ignore());
 
                         cfg.CreateMap<SuitableProfile, ResultViewModel>();
-                        cfg.CreateMap<ResultViewModel, SuitableProfile>();
+                        cfg.CreateMap<ResultViewModel, SuitableProfile>()
+                        .ForMember(c => c.DateTimeCreation, opt => opt.Ignore());
                     });
                     _instance = config.CreateMapper();
                 }
