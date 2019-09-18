@@ -39,7 +39,7 @@ namespace ScraperLinkedIn.Repositories
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                var result = db.Profiles.Where(x => (DbFunctions.TruncateTime(x.DataСreation) == DbFunctions.TruncateTime(DateTime.Now)) && (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created)).Count();
+                var result = db.Profiles.Where(x => (DbFunctions.TruncateTime(x.DateСreation) == DbFunctions.TruncateTime(DateTime.Now)) && (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created)).Count();
 
                 return result;
             }
@@ -54,7 +54,7 @@ namespace ScraperLinkedIn.Repositories
 
                 foreach (var profile in profiles.Where(x => !addProfiles.Contains(x.ProfileUrl)))
                 {
-                    profile.DataСreation = DateTime.Now;
+                    profile.DateСreation = DateTime.Now;
                     db.Profiles.Add(profile);
                 }
 
@@ -75,7 +75,7 @@ namespace ScraperLinkedIn.Repositories
                 profileDB.AllSkills = profile.AllSkills ?? "";
                 profileDB.ExecutionStatusID = profile.ExecutionStatusID;
                 profileDB.ProfileStatusID = profile.ProfileStatusID;
-                profileDB.DataСreation = profile.DataСreation;
+                profileDB.DateСreation = profile.DateСreation;
 
                 db.SaveChanges();
             }

@@ -81,7 +81,7 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.ExecutionStatus, opt => opt.MapFrom(ce => (ExecutionStatuses)ce.ExecutionStatusID))
                            .ForMember(c => c.CompanyID, opt => opt.MapFrom(ce => ce.CompanyID))
                            .ForMember(c => c.ProfileStatus, opt => opt.MapFrom(ce => (ProfileStatuses)ce.ProfileStatusID))
-                           .ForMember(c => c.DataСreation, opt => opt.MapFrom(ce => ce.DataСreation))
+                           .ForMember(c => c.DateСreation, opt => opt.MapFrom(ce => ce.DateСreation))
                            .ForMember(c => c.Skills, opt => opt.Ignore());
 
                         cfg.CreateMap<ProfileViewModel, Profile>()
@@ -95,14 +95,21 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.CompanyID, opt => opt.MapFrom(ce => ce.CompanyID))
                            .ForMember(c => c.ExecutionStatusID, opt => opt.MapFrom(ce => (int)ce.ExecutionStatus))
                            .ForMember(c => c.ProfileStatusID, opt => opt.MapFrom(ce => (int)ce.ProfileStatus))
-                           .ForMember(c => c.DataСreation, opt => opt.MapFrom(ce => ce.DataСreation))
+                           .ForMember(c => c.DateСreation, opt => opt.MapFrom(ce => ce.DateСreation))
                            .ForMember(c => c.Company, opt => opt.Ignore())
                            .ForMember(c => c.ExecutionStatus, opt => opt.Ignore())
                            .ForMember(c => c.ProfileStatus, opt => opt.Ignore());
 
                         cfg.CreateMap<SuitableProfile, ResultViewModel>();
+
                         cfg.CreateMap<ResultViewModel, SuitableProfile>()
                         .ForMember(c => c.DateTimeCreation, opt => opt.Ignore());
+
+                        cfg.CreateMap<Setting, SettingsViewModel>()
+                           .ForMember(c => c.IntervalType, opt => opt.MapFrom(ce => (IntervalTypes)ce.IntervalType));
+
+                        cfg.CreateMap<SettingsViewModel, Setting>()
+                           .ForMember(c => c.IntervalType, opt => opt.MapFrom(ce => (int)ce.IntervalType));
                     });
                     _instance = config.CreateMapper();
                 }

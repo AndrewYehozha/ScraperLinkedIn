@@ -6,7 +6,7 @@
     <edmx:Diagrams>
       <Diagram DiagramId="328e73d8e7f74f0585a139ec66115511" Name="Diagram1">
         <EntityTypeShape EntityType="ScraperLinkedInDBModel.Company" Width="1.5" PointX="3" PointY="1.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="ScraperLinkedInDBModel.DebugLog" Width="1.5" PointX="5.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.DebugLog" Width="1.5" PointX="9.125" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="ScraperLinkedInDBModel.ExecutionStatus" Width="1.5" PointX="0.75" PointY="2" IsExpanded="true" />
         <EntityTypeShape EntityType="ScraperLinkedInDBModel.Profile" Width="1.5" PointX="5.25" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="ScraperLinkedInDBModel.ProfileStatus" Width="1.5" PointX="3" PointY="6.125" IsExpanded="true" />
@@ -14,7 +14,8 @@
         <AssociationConnector Association="ScraperLinkedInDBModel.FK_Profiles_Companies" ManuallyRouted="false" />
         <AssociationConnector Association="ScraperLinkedInDBModel.FK_Profiles_ExecutionStatuses" ManuallyRouted="false" />
         <AssociationConnector Association="ScraperLinkedInDBModel.FK_Profiles_ProfileStatuses" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="ScraperLinkedInDBModel.SuitableProfile" Width="1.5" PointX="8.375" PointY="0.75" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.SuitableProfile" Width="1.5" PointX="7.25" PointY="1.375" />
+        <EntityTypeShape EntityType="ScraperLinkedInDBModel.Setting" Width="1.5" PointX="9.125" PointY="0.875" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -16,6 +16,6 @@ namespace ScraperLinkedIn.Models
         public ExecutionStatuses ExecutionStatus { get; set; }
         public int? CompanyID { get; set; }
         public ProfileStatuses ProfileStatus { get; set; }
-        public System.DateTime DataСreation { get; set; }
+        public System.DateTime DateСreation { get; set; }
     }
 }
