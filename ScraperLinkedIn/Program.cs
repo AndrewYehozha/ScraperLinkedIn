@@ -1,4 +1,5 @@
 ﻿using ScraperLinkedIn.WinService;
+using System;
 
 namespace ScraperLinkedIn
 {
@@ -6,7 +7,15 @@ namespace ScraperLinkedIn
     {
         static void Main(string[] args)
         {
-            ConfigureService.Configure();
+            if (Environment.UserInteractive)
+            {
+                (new MyService()).Start();
+                Console.ReadKey(true);
+            }
+            else
+            {
+                ConfigureService.Configure();
+            }
         }
     }
 }
