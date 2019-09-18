@@ -12,11 +12,18 @@ namespace ScraperLinkedIn.Database
     using System;
     using System.Collections.Generic;
     
-    public partial class DebugLog
+    public partial class Setting
     {
         public int Id { get; set; }
-        public string Remarks { get; set; }
-        public string Logs { get; set; }
-        public Nullable<System.DateTime> CreatedOn { get; set; }
+        public System.TimeSpan TimeStart { get; set; }
+        public int IntervalType { get; set; }
+        public int IntervalValue { get; set; }
+        public string Token { get; set; }
+        public int CompanyBatchSize { get; set; }
+        public int ProfileBatchSize { get; set; }
+        public string Password { get; set; }
+        public int AccountID { get; set; }
+        public System.DateTime DateUpdate { get; set; }
+        public string Login { get; set; }
     }
 }

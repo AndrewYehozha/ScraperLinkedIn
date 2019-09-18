@@ -10,19 +10,19 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="OrganizationName" Type="nvarchar" MaxLength="250" Nullable="false" />
-          <Property Name="OrganizationURL" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="OrganizationName" Type="nvarchar" MaxLength="250" />
+          <Property Name="OrganizationURL" Type="nvarchar" MaxLength="500" />
           <Property Name="Founders" Type="nvarchar" MaxLength="250" />
           <Property Name="HeadquartersLocation" Type="nvarchar" MaxLength="250" />
           <Property Name="Website" Type="nvarchar" MaxLength="150" />
           <Property Name="LinkedInURL" Type="nvarchar" MaxLength="500" />
-          <Property Name="Facebook" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="Twitter" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="AmountEmployees" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Facebook" Type="nvarchar" MaxLength="150" />
+          <Property Name="Twitter" Type="nvarchar" MaxLength="150" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="AmountEmployees" Type="nvarchar" MaxLength="50" />
           <Property Name="LogoUrl" Type="nvarchar" MaxLength="500" />
           <Property Name="Specialties" Type="nvarchar(max)" />
-          <Property Name="Industry" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Industry" Type="nvarchar(max)" />
           <Property Name="ExecutionStatusID" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="DebugLogs">
@@ -55,7 +55,7 @@
           <Property Name="CompanyID" Type="int" Nullable="false" />
           <Property Name="ExecutionStatusID" Type="int" Nullable="false" />
           <Property Name="ProfileStatusID" Type="int" Nullable="false" />
-          <Property Name="DataСreation" Type="date" Nullable="false" />
+          <Property Name="DateСreation" Type="date" Nullable="false" />
         </EntityType>
         <EntityType Name="ProfileStatuses">
           <Key>
@@ -64,31 +64,47 @@
           <Property Name="ProfileStatusID" Type="int" Nullable="false" />
           <Property Name="StatusName" Type="nvarchar" MaxLength="75" Nullable="false" />
         </EntityType>
+        <EntityType Name="Settings">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TimeStart" Type="time" Precision="0" Nullable="false" />
+          <Property Name="IntervalType" Type="int" Nullable="false" />
+          <Property Name="IntervalValue" Type="int" Nullable="false" />
+          <Property Name="Token" Type="nvarchar" MaxLength="250" Nullable="false" />
+          <Property Name="CompanyBatchSize" Type="int" Nullable="false" />
+          <Property Name="ProfileBatchSize" Type="int" Nullable="false" />
+          <Property Name="Login" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Password" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="AccountID" Type="int" Nullable="false" />
+          <Property Name="DateUpdate" Type="datetime" Nullable="false" />
+        </EntityType>
         <EntityType Name="SuitableProfiles">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="FirstName" Type="nvarchar" MaxLength="125" Nullable="false" />
-          <Property Name="LastName" Type="nvarchar" MaxLength="125" Nullable="false" />
-          <Property Name="Job" Type="nvarchar" MaxLength="250" Nullable="false" />
-          <Property Name="PersonLinkedIn" Type="nvarchar" MaxLength="500" Nullable="false" />
-          <Property Name="Company" Type="nvarchar" MaxLength="250" Nullable="false" />
-          <Property Name="Website" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="CompanyLogoUrl" Type="nvarchar" MaxLength="500" Nullable="false" />
-          <Property Name="CrunchUrl" Type="nvarchar" MaxLength="500" Nullable="false" />
-          <Property Name="Email" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="EmailStatus" Type="nvarchar" MaxLength="10" Nullable="false" />
-          <Property Name="City" Type="nvarchar" MaxLength="75" Nullable="false" />
-          <Property Name="State" Type="nvarchar" MaxLength="75" Nullable="false" />
-          <Property Name="Country" Type="nvarchar" MaxLength="75" Nullable="false" />
-          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="AmountEmployees" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="Industry" Type="nvarchar(max)" Nullable="false" />
-          <Property Name="Twitter" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="Facebook" Type="nvarchar" MaxLength="150" Nullable="false" />
-          <Property Name="TechStack" Type="nvarchar(max)" Nullable="false" />
-          <Property Name="DateTimeCreation" Type="datetime" Nullable="false" />
+          <Property Name="FirstName" Type="nvarchar" MaxLength="125" />
+          <Property Name="LastName" Type="nvarchar" MaxLength="125" />
+          <Property Name="Job" Type="nvarchar" MaxLength="250" />
+          <Property Name="PersonLinkedIn" Type="nvarchar" MaxLength="500" />
+          <Property Name="Company" Type="nvarchar" MaxLength="250" />
+          <Property Name="Website" Type="nvarchar" MaxLength="150" />
+          <Property Name="CompanyLogoUrl" Type="nvarchar" MaxLength="500" />
+          <Property Name="CrunchUrl" Type="nvarchar" MaxLength="500" />
+          <Property Name="Email" Type="nvarchar" MaxLength="50" />
+          <Property Name="EmailStatus" Type="nvarchar" MaxLength="10" />
+          <Property Name="City" Type="nvarchar" MaxLength="75" />
+          <Property Name="State" Type="nvarchar" MaxLength="75" />
+          <Property Name="Country" Type="nvarchar" MaxLength="75" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="AmountEmployees" Type="nvarchar" MaxLength="50" />
+          <Property Name="Industry" Type="nvarchar(max)" />
+          <Property Name="Twitter" Type="nvarchar" MaxLength="150" />
+          <Property Name="Facebook" Type="nvarchar" MaxLength="150" />
+          <Property Name="TechStack" Type="nvarchar(max)" />
+          <Property Name="DateTimeCreation" Type="datetime" />
         </EntityType>
         <Association Name="FK_Companies_ExecutionStatuses">
           <End Role="ExecutionStatuses" Type="Self.ExecutionStatuses" Multiplicity="1" />
@@ -144,6 +160,7 @@
           <EntitySet Name="ExecutionStatuses" EntityType="Self.ExecutionStatuses" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Profiles" EntityType="Self.Profiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProfileStatuses" EntityType="Self.ProfileStatuses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Settings" EntityType="Self.Settings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SuitableProfiles" EntityType="Self.SuitableProfiles" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Companies_ExecutionStatuses" Association="Self.FK_Companies_ExecutionStatuses">
             <End Role="ExecutionStatuses" EntitySet="ExecutionStatuses" />
@@ -171,8 +188,8 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="OrganizationName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="OrganizationURL" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="OrganizationName" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="OrganizationURL" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="Founders" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="HeadquartersLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="Website" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
@@ -182,11 +199,11 @@
           <Property Name="ExecutionStatusID" Type="Int32" Nullable="false" />
           <NavigationProperty Name="ExecutionStatus" Relationship="Self.FK_Companies_ExecutionStatuses" FromRole="Companies" ToRole="ExecutionStatuses" />
           <NavigationProperty Name="Profiles" Relationship="Self.FK_Profiles_Companies" FromRole="Companies" ToRole="Profiles" />
-          <Property Name="Facebook" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Twitter" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="AmountEmployees" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Industry" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Facebook" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Twitter" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AmountEmployees" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Industry" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="DebugLog">
           <Key>
@@ -223,7 +240,7 @@
           <NavigationProperty Name="Company" Relationship="ScraperLinkedInDBModel.FK_Profiles_Companies" FromRole="Profiles" ToRole="Companies" />
           <NavigationProperty Name="ExecutionStatus" Relationship="Self.FK_Profiles_ExecutionStatuses" FromRole="Profiles" ToRole="ExecutionStatuses" />
           <NavigationProperty Name="ProfileStatus" Relationship="Self.FK_Profiles_ProfileStatuses" FromRole="Profiles" ToRole="ProfileStatuses" />
-          <Property Name="DataСreation" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="DateСreation" Type="DateTime" Nullable="false" Precision="0" />
         </EntityType>
         <EntityType Name="ProfileStatus">
           <Key>
@@ -304,32 +321,49 @@
             <End Role="Profiles" EntitySet="Profiles" />
           </AssociationSet>
           <EntitySet Name="SuitableProfiles" EntityType="ScraperLinkedInDBModel.SuitableProfile" />
+          <EntitySet Name="Settings" EntityType="ScraperLinkedInDBModel.Setting" />
         </EntityContainer>
         <EntityType Name="SuitableProfile">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="FirstName" Type="String" MaxLength="125" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="LastName" Type="String" MaxLength="125" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Job" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PersonLinkedIn" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Company" Type="String" MaxLength="250" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Website" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="CompanyLogoUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="CrunchUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="EmailStatus" Type="String" MaxLength="10" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="City" Type="String" MaxLength="75" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="State" Type="String" MaxLength="75" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Country" Type="String" MaxLength="75" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="AmountEmployees" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Industry" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Twitter" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Facebook" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="TechStack" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="DateTimeCreation" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="FirstName" Type="String" MaxLength="125" FixedLength="false" Unicode="true" />
+          <Property Name="LastName" Type="String" MaxLength="125" FixedLength="false" Unicode="true" />
+          <Property Name="Job" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="PersonLinkedIn" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Company" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="Website" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="CompanyLogoUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CrunchUrl" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="EmailStatus" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" MaxLength="75" FixedLength="false" Unicode="true" />
+          <Property Name="State" Type="String" MaxLength="75" FixedLength="false" Unicode="true" />
+          <Property Name="Country" Type="String" MaxLength="75" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AmountEmployees" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Industry" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Twitter" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="Facebook" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="TechStack" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DateTimeCreation" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="Setting">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TimeStart" Type="Time" Nullable="false" Precision="0" />
+          <Property Name="IntervalType" Type="Int32" Nullable="false" />
+          <Property Name="IntervalValue" Type="Int32" Nullable="false" />
+          <Property Name="Token" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="CompanyBatchSize" Type="Int32" Nullable="false" />
+          <Property Name="ProfileBatchSize" Type="Int32" Nullable="false" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AccountID" Type="Int32" Nullable="false" />
+          <Property Name="DateUpdate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Login" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -379,7 +413,7 @@
           <EntitySetMapping Name="Profiles">
             <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Profile">
               <MappingFragment StoreEntitySet="Profiles">
-                <ScalarProperty Name="DataСreation" ColumnName="DataСreation" />
+                <ScalarProperty Name="DateСreation" ColumnName="DateСreation" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
@@ -424,6 +458,23 @@
                 <ScalarProperty Name="Job" ColumnName="Job" />
                 <ScalarProperty Name="LastName" ColumnName="LastName" />
                 <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Settings">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Setting">
+              <MappingFragment StoreEntitySet="Settings">
+                <ScalarProperty Name="Login" ColumnName="Login" />
+                <ScalarProperty Name="DateUpdate" ColumnName="DateUpdate" />
+                <ScalarProperty Name="AccountID" ColumnName="AccountID" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="ProfileBatchSize" ColumnName="ProfileBatchSize" />
+                <ScalarProperty Name="CompanyBatchSize" ColumnName="CompanyBatchSize" />
+                <ScalarProperty Name="Token" ColumnName="Token" />
+                <ScalarProperty Name="IntervalValue" ColumnName="IntervalValue" />
+                <ScalarProperty Name="IntervalType" ColumnName="IntervalType" />
+                <ScalarProperty Name="TimeStart" ColumnName="TimeStart" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

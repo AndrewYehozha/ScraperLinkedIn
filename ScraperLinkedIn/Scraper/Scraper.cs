@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -58,29 +57,18 @@ namespace ScraperLinkedIn.Scrapers
             }
         }
 
-        public void Run()
+        public void Run(SettingsViewModel settings)
         {
-            if (!int.TryParse(ConfigurationManager.AppSettings["COMPANY_BATCH_SIZE"], out CompanyBatchSize))
-            {
-                _loggerService.Add("Error", $"Company batch size must be an integer. Please, check the value of <COMPANY_BATCH_SIZE> in App.config.");
-                return;
-            }
-
-            if (!int.TryParse(ConfigurationManager.AppSettings["PROFILE_BATCH_SIZE"], out ProfileBatchSize))
-            {
-                _loggerService.Add("Error", $"Company batch size must be an integer. Please, check the value of <PROFILE_BATCH_SIZE> in App.config.");
-                return;
-            }
-
-            Login = ConfigurationManager.AppSettings["LOGIN"];
-            Password = ConfigurationManager.AppSettings["PASSWORD"];
-
-            _loggerService.Add("Connecting to LinkedIn...", "");
-
-            var cookie = new Cookie("li_at", ConfigurationManager.AppSettings["TOKEN"], ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
+            CompanyBatchSize = settings.CompanyBatchSize;
+            ProfileBatchSize = settings.ProfileBatchSize;
+            Login = settings.Login;
+            Password = settings.Password;
 
             try
             {
+                _loggerService.Add("Connecting to LinkedIn...", "");
+
+                var cookie = new Cookie("li_at", settings.Token, ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
                 driver.Navigate().GoToUrl("https://www.linkedin.com");
                 driver.Manage().Cookies.AddCookie(cookie);
                 driver.Navigate().Refresh();
