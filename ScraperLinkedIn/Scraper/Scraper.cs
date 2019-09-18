@@ -79,59 +79,66 @@ namespace ScraperLinkedIn.Scrapers
 
             var cookie = new Cookie("li_at", ConfigurationManager.AppSettings["TOKEN"], ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
 
-            driver.Navigate().GoToUrl("https://www.linkedin.com");
-            driver.Manage().Cookies.AddCookie(cookie);
-            driver.Navigate().Refresh();
-
-            try // Validation of the entered token
+            try
             {
-                var profileName = driver.FindElement(By.ClassName("profile-rail-card__actor-link")).Text;
-                _loggerService.Add($"Connected successfully as", profileName);
-            }
-            catch
-            {
-                _loggerService.Add("Invalid Token. Please, check the value of <TOKEN> in App.config.");
+                driver.Navigate().GoToUrl("https://www.linkedin.com");
+                driver.Manage().Cookies.AddCookie(cookie);
+                driver.Navigate().Refresh();
 
-                if (!SignIn())
+                try // Validation of the entered token
                 {
-                    Close();
-                    return;
+                    var profileName = driver.FindElement(By.ClassName("profile-rail-card__actor-link")).Text;
+                    _loggerService.Add($"Connected successfully as", profileName);
                 }
-            }
-
-            _loggerService.Add("Start scraped data processing", "");
-
-            //Scraped data processing
-            var searchCompanies = _companyService.GetCompaniesForSearch();
-            _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
-
-            //Scraper process
-            _loggerService.Add("Start scraper process", "");
-
-            var rawProfilesCount = _profilesService.GetCountRawProfiles();
-
-            if (rawProfilesCount < ProfileBatchSize)
-            {
-                var newPofilesCount = _profilesService.GetCountNewProfiles();
-
-                while (newPofilesCount <= ProfileBatchSize * 1.6)
+                catch
                 {
-                    var companies = _companyService.GetCompanies(CompanyBatchSize);
-                    GetCompaniesEmployees(companies);
+                    _loggerService.Add("Invalid Token. Please, check the value of <TOKEN> in App.config.");
 
-                    newPofilesCount = _profilesService.GetCountNewProfiles();
+                    if (CheckBrowserErrors() || !SignIn())
+                    {
+                        Close();
+                        return;
+                    }
                 }
+
+                _loggerService.Add("Start scraped data processing", "");
+
+                //Scraped data processing
+                var searchCompanies = _companyService.GetCompaniesForSearch();
+                _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
+
+                //Scraper process
+                _loggerService.Add("Start scraper process", "");
+
+                var rawProfilesCount = _profilesService.GetCountRawProfiles();
+
+                if (rawProfilesCount < ProfileBatchSize)
+                {
+                    var newPofilesCount = _profilesService.GetCountNewProfiles();
+
+                    while (newPofilesCount <= ProfileBatchSize * 1.6)
+                    {
+                        var companies = _companyService.GetCompanies(CompanyBatchSize);
+                        GetCompaniesEmployees(companies);
+
+                        newPofilesCount = _profilesService.GetCountNewProfiles();
+                    }
+                }
+                else
+                {
+                    ProfileBatchSize *= 2;
+                }
+
+                var profiles = _profilesService.GetProfiles(ProfileBatchSize);
+                GetEmployeeProfiles(profiles);
+
+                _loggerService.Add("End scraper process", "");
+                Close();
             }
-            else
+            catch (Exception ex)
             {
-                ProfileBatchSize *= 2;
+                _loggerService.Add("Error Run scraper", ex.ToString());
             }
-
-            var profiles = _profilesService.GetProfiles(ProfileBatchSize);
-            GetEmployeeProfiles(profiles);
-
-            _loggerService.Add("End scraper process", "");
-            Close();
         }
 
         private void GetCompaniesEmployees(IEnumerable<CompanyEmployeesViewModel> companies)
@@ -153,7 +160,7 @@ namespace ScraperLinkedIn.Scrapers
                     _loggerService.Add($"Error opening company page with url: { company.LinkedIn }", ex.ToString());
                 }
 
-                if (!CheckAuthorization() && !SignIn())
+                if (CheckBrowserErrors() || (!CheckAuthorization() && !SignIn()))
                 {
                     return;
                 }
@@ -214,7 +221,19 @@ namespace ScraperLinkedIn.Scrapers
                 }
                 catch { }
 
-                driver.FindElement(By.CssSelector("a[data-control-name='page_member_main_nav_about_tab']")).Click();
+                try
+                {
+                    driver.FindElement(By.CssSelector("a[data-control-name='page_member_main_nav_about_tab']")).Click();
+                }
+                catch
+                {
+                    _loggerService.Add("Error: \"This isn't a company\"", company.LinkedIn); //This isn't a company
+
+                    company.ExecutionStatus = ExecutionStatuses.Failed;
+                    _companyService.UpdateCompany(company);
+
+                    continue;
+                }
 
                 try
                 {
@@ -257,7 +276,7 @@ namespace ScraperLinkedIn.Scrapers
                         js.ExecuteScript("window.scrollBy(0,1000)");
                         Thread.Sleep(2000); // Waiting for page to load
 
-                        if (!CheckAuthorization() && !SignIn())
+                        if (CheckBrowserErrors() || (!CheckAuthorization() && !SignIn()))
                         {
                             _companyService.UpdateCompany(company);
                             return;
@@ -312,7 +331,7 @@ namespace ScraperLinkedIn.Scrapers
                     _loggerService.Add($"Error opening profile page with url: { employee.ProfileUrl }", ex.ToString());
                 }
 
-                if (!CheckAuthorization() && !SignIn())
+                if (CheckBrowserErrors() || (!CheckAuthorization() && !SignIn()))
                 {
                     return;
                 }
@@ -398,6 +417,20 @@ namespace ScraperLinkedIn.Scrapers
             }
         }
 
+        private bool CheckBrowserErrors()
+        {
+            try
+            {
+                var errorElement = driver.FindElement(By.CssSelector("div .error-code"));
+                _loggerService.Add("Error", errorElement.Text);
+
+                return true;
+            }
+            catch { }
+
+            return false;
+        }
+
         private bool CheckAuthorization()
         {
             try
@@ -414,16 +447,24 @@ namespace ScraperLinkedIn.Scrapers
 
         private bool SignIn()
         {
-            driver.Navigate().GoToUrl("https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin");
+            try
+            {
+                driver.Navigate().GoToUrl("https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin");
 
-            Thread.Sleep(3000); //Loading Sign in page
+                Thread.Sleep(3000); //Loading Sign in page
 
-            driver.FindElement(By.Id("username")).Clear();
-            driver.FindElement(By.Id("username")).SendKeys(Login); //Authorization process
-            Thread.Sleep(500);
-            driver.FindElement(By.Id("password")).SendKeys(Password);
-            Thread.Sleep(500);
-            driver.FindElement(By.ClassName("btn__primary--large")).Click();
+                driver.FindElement(By.Id("username")).Clear();
+                driver.FindElement(By.Id("username")).SendKeys(Login); //Authorization process
+                Thread.Sleep(500);
+                driver.FindElement(By.Id("password")).SendKeys(Password);
+                Thread.Sleep(500);
+                driver.FindElement(By.ClassName("btn__primary--large")).Click();
+            }
+            catch (Exception ex)
+            {
+                _loggerService.Add("Error authorization", ex.ToString());
+                return false;
+            }
 
             try
             {
