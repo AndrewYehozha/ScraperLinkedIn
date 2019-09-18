@@ -47,7 +47,7 @@ namespace ScraperLinkedIn.WinService
                     MyScheduler.IntervalInSeconds(TimeStart.Hour, TimeStart.Minute, Interval,
                     () =>
                     {
-                        _loggerService.Add("Start a schedule with an interval in seconds");
+                        _loggerService.Add("Start a schedule", "With an interval in seconds");
                         _scraper.Run();
                     });
                     break;
@@ -56,7 +56,7 @@ namespace ScraperLinkedIn.WinService
                     MyScheduler.IntervalInHours(TimeStart.Hour, TimeStart.Minute, Interval,
                     () =>
                     {
-                        _loggerService.Add("Start a schedule with an interval in hours");
+                        _loggerService.Add("Start a schedule", "With an interval in hours");
                         _scraper.Run();
                     });
                     break;
@@ -66,7 +66,7 @@ namespace ScraperLinkedIn.WinService
                     MyScheduler.IntervalInDays(TimeStart.Hour, TimeStart.Minute, Interval,
                     () =>
                     {
-                        _loggerService.Add("Start a schedule with an interval in days");
+                        _loggerService.Add("Start a schedule", "With an interval in days");
                         _scraper.Run();
                     });
                     break;
@@ -75,11 +75,14 @@ namespace ScraperLinkedIn.WinService
                     _loggerService.Add("Error INTERVAL_TYPE", "Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.");
                     break;
             }
+
+            _loggerService.Add("Scheduler service started", "");
         }
         public void Stop()
         {
             _loggerService.Add("Scheduler service is stoping...", "");
             _scraper.Close();
+            _loggerService.Add("Scheduler service stopped", "");
         }
     }
 }
