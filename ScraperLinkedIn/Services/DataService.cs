@@ -1,15 +1,10 @@
-﻿using OfficeOpenXml;
-using ScraperLinkedIn.Database;
-using ScraperLinkedIn.Database.ObjectMappers;
-using ScraperLinkedIn.Email;
+﻿using ScraperLinkedIn.Email;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.SearchParameters;
 using ScraperLinkedIn.Types;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Youworks.Text;
 
 namespace ScraperLinkedIn.Services
 {
@@ -123,74 +118,6 @@ namespace ScraperLinkedIn.Services
                 //After company scraped company data processing
                 _suitableProfileService.AddSuitableProfile(result);
                 _profilesService.UpdateProfilesExecutionStatusByCompanyID(ExecutionStatuses.Success, companyEmployees.Id);
-            }
-        }
-
-        public void ImpotCompaniesCSVFile(string filePath = @"D:\CompaniesInfo\companies-23-08-2019.csv")
-        {
-            var companies = new List<CompanyImportViewModel>() { };
-            var sourceCompanies = new CSVSource<CompanyImportViewModel>(filePath);
-
-            while (sourceCompanies.HasMore)
-            {
-                companies.Add(sourceCompanies.ReadNext());
-            }
-
-            var companiesDB = MapperConfigurationModel.Instance.Map<IEnumerable<CompanyImportViewModel>, IEnumerable<Company>>(companies);
-            companiesDB.Where(x => (x.LinkedInURL == null || x.LinkedInURL.Trim() == "") || (x.Website == null || x.Website.Trim() == "")).ToList().ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Failed);
-
-            using (var db = new ScraperLinkedInDBEntities())
-            {
-                foreach (var item in companiesDB)
-                {
-                    db.Companies.Add(item);
-                }
-                db.SaveChanges();
-            }
-        }
-
-        public void SaveToXLSXFile(List<ResultViewModel> profiles)
-        {
-            profiles.Insert(0, 
-                new ResultViewModel
-                {
-                    FirstName = "FirstName",
-                    LastName = "LastName",
-                    Job = "Job",
-                    PersonLinkedIn = "Person LinkedIn",
-                    Company = "Company",
-                    Website = "Website",
-                    //CompanyLogoUrl = "Company Logo",
-                    CrunchUrl = "Crunch Url",
-                    Email = "Email",
-                    EmailStatus = "Email Status",
-                    City = "City",
-                    State = "State",
-                    Country = "Country",
-                    PhoneNumber = "Phone number",
-                    AmountEmployees = "Amount Employees",
-                    Industry = "Industry",
-                    Twitter = "Twitter",
-                    Facebook = "Facebook",
-                    //CompanySpecialties = "CompanySpecialties",
-                    TechStack = "TechStack"
-                }
-            );
-
-            using (var excel = new ExcelPackage())
-            {
-                excel.Workbook.Worksheets.Add("Profiles");
-
-                string headerRange = "A1:" + Char.ConvertFromUtf32(18 + 64) + "1";
-                var worksheet = excel.Workbook.Worksheets["Profiles"];
-                worksheet.Cells[headerRange].LoadFromCollection(profiles);
-                worksheet.Cells["A1:Q2000"].AutoFitColumns(10, 25);
-                worksheet.Column(11).AutoFit();
-
-                var excelFile = new FileInfo(@"D:\CompaniesInfo\test_1.xlsx");
-                excel.SaveAs(excelFile);
-
-                Console.WriteLine($"\n\nFile saved \nPath: { excelFile.FullName }");
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Scheduler;
 using ScraperLinkedIn.Scrapers;
+using ScraperLinkedIn.Services;
 using ScraperLinkedIn.Types;
 using System;
 using System.Configuration;
@@ -13,26 +14,27 @@ namespace ScraperLinkedIn
         private static DateTime TimeStart;
         private static int Interval;
         private static IntervalTypes IntervalType;
+        private static Scraper scraper = new Scraper();
+        private static LoggerService _loggerService = new LoggerService();
 
         static void Main(string[] args)
         {
-            Console.WriteLine("-----------------------------------------------------------------------");
-            Console.WriteLine("Scheduler service are starting...\n");
+            _loggerService.Add("Scheduler service are starting...", "");
 
             if (!DateTime.TryParseExact(ConfigurationManager.AppSettings["TIME_START"], "h:mm:ss tt", CultureInfo.InvariantCulture, DateTimeStyles.None, out TimeStart))
             {
-                Console.WriteLine("TimeStart must be a DateTime.\nPlease, check the value of <TIME_START> in App.config.\n\n");
+                _loggerService.Add("Error TIME_START", "TimeStart must be a DateTime. Please, check the value of <TIME_START> in App.config.");
             }
 
-            if(!int.TryParse(ConfigurationManager.AppSettings["INTERVAL"], out Interval))
+            if (!int.TryParse(ConfigurationManager.AppSettings["INTERVAL"], out Interval))
             {
-                Console.WriteLine("Interval must be an integer.\nPlease, check the value of <INTERVAL> in App.config.\n\n");
+                _loggerService.Add("Error INTERVAL", "Interval must be an integer. Please, check the value of <INTERVAL> in App.config.");
             }
 
             Enum.TryParse(ConfigurationManager.AppSettings["INTERVAL_TYPE"], out IntervalType);
 
-            var scraper = new Scraper();
             scraper.Initialize();
+            scraper.Run();
 
             switch (IntervalType)
             {
@@ -41,7 +43,7 @@ namespace ScraperLinkedIn
                     MyScheduler.IntervalInSeconds(TimeStart.Hour, TimeStart.Minute, Interval,
                     () =>
                     {
-                        Console.WriteLine("Start a schedule with an interval in seconds");
+                        _loggerService.Add("Start a schedule with an interval in seconds");
                         scraper.Run();
                     });
                     break;
@@ -50,7 +52,7 @@ namespace ScraperLinkedIn
                     MyScheduler.IntervalInHours(TimeStart.Hour, TimeStart.Minute, Interval,
                     () =>
                     {
-                        Console.WriteLine("Start a schedule with an interval in hours");
+                        _loggerService.Add("Start a schedule with an interval in hours");
                         scraper.Run();
                     });
                     break;
@@ -60,20 +62,17 @@ namespace ScraperLinkedIn
                     MyScheduler.IntervalInDays(TimeStart.Hour, TimeStart.Minute, Interval,
                     () =>
                     {
-                        Console.WriteLine("Start a schedule with an interval in days");
+                        _loggerService.Add("Start a schedule with an interval in days");
                         scraper.Run();
                     });
                     break;
 
                 case IntervalTypes.Undefined:
-                    Console.WriteLine("Invalid IntervalType.\nPlease, check the value of <INTERVAL_TYPE> in App.config.\n\n");
+                    _loggerService.Add("Error INTERVAL_TYPE", "Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.");
                     break;
             }
 
-            Console.WriteLine("Scheduler Service are listening...Press <ENTER> to terminate.");
-            Console.WriteLine("-----------------------------------------------------------------------\n");
-            Console.ReadLine();
-
+            _loggerService.Add("Scheduler service is stoping...", "");
             scraper.Close();
         }
     }
