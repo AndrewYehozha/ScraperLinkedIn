@@ -11,16 +11,16 @@ namespace ScraperLinkedIn.WinService
                 configure.Service<MyService>(service =>
                 {
                     service.ConstructUsing(s => new MyService());
-                    service.WhenStarted(s => s.Start());
-                    service.WhenStopped(s => s.Stop());
+                    service.WhenStarted(s => s.OnStart());
+                    service.WhenStopped(s => s.OnStop());
                 });
 
                 //Setup Account that window service use to run.  
                 configure.RunAsLocalService();
                 configure.StartManually();
-                configure.SetServiceName("ScraperLinkedIn");
-                configure.SetDisplayName("ScraperLinkedIn");
-                configure.SetDescription("ScraperLinkedIn");
+                configure.SetServiceName("ScraperLinkedInConsole");
+                configure.SetDisplayName("ScraperLinkedInConsole");
+                configure.SetDescription("Console app");
             });
         }
     }

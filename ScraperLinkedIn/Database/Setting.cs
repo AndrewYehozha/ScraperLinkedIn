@@ -25,5 +25,7 @@ namespace ScraperLinkedIn.Database
         public int AccountID { get; set; }
         public System.DateTime DateUpdate { get; set; }
         public string Login { get; set; }
+        public string TechnologiesSearch { get; set; }
+        public string RolesSearch { get; set; }
     }
 }

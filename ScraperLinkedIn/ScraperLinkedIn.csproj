@@ -211,7 +211,6 @@
     </Compile>
     <Compile Include="Email\EmailGenerator.cs" />
     <Compile Include="Models\CompanyEmployeesViewModel.cs" />
-    <Compile Include="Models\CompanyImportViewModel.cs" />
     <Compile Include="Models\ProfileViewModel.cs" />
     <Compile Include="Models\ResultViewModel.cs" />
     <Compile Include="Models\SettingsViewModel.cs" />
@@ -223,8 +222,6 @@
     <Compile Include="Repositories\ProfilesRepository.cs" />
     <Compile Include="Repositories\SuitableProfileRepository.cs" />
     <Compile Include="Scheduler\MyScheduler.cs" />
-    <Compile Include="SearchParameters\RolesSearchParameters.cs" />
-    <Compile Include="SearchParameters\TechnologiesSearchParameters.cs" />
     <Compile Include="Services\AccountsService.cs" />
     <Compile Include="Services\CompaniesService.cs" />
     <Compile Include="Services\DataService.cs" />

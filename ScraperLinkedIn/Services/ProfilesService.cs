@@ -1,7 +1,6 @@
 ﻿using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Repositories;
-using ScraperLinkedIn.SearchParameters;
 using ScraperLinkedIn.Types;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,21 +40,21 @@ namespace ScraperLinkedIn.Services
             }
         }
 
-        public void UpdateProfile(ProfileViewModel profile)
+        public void UpdateProfile(ProfileViewModel profile, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
         {
-            profile.ProfileStatus = GetProfileStatus(profile);
+            profile.ProfileStatus = GetProfileStatus(profile, rolesSearch, technologiesSearch);
 
             _profilesRepository.UpdateProfile(MapperConfigurationModel.Instance.Map<ProfileViewModel, Profile>(profile));
         }
 
-        private ProfileStatuses GetProfileStatus(ProfileViewModel profile)
+        private ProfileStatuses GetProfileStatus(ProfileViewModel profile, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
         {
-            if (RolesSearchParameters.Roles.Any(x => profile.Job.ToUpper().Split(' ').Contains(x)))
+            if (rolesSearch.Any(x => profile.Job.ToUpper().Split(' ').Contains(x.Trim())))
             {
                 return ProfileStatuses.Chief;
             }
 
-            if (TechnologiesSearchParameters.Technologies.Any(y => profile.AllSkills.ToUpper().Contains(y)))
+            if (technologiesSearch.Any(y => profile.AllSkills.ToUpper().Contains(y.Trim())))
             {
                 return ProfileStatuses.Developer;
             }

@@ -1,6 +1,5 @@
 ﻿using ScraperLinkedIn.Email;
 using ScraperLinkedIn.Models;
-using ScraperLinkedIn.SearchParameters;
 using ScraperLinkedIn.Types;
 using System;
 using System.Collections.Generic;
@@ -13,16 +12,20 @@ namespace ScraperLinkedIn.Services
         private EmailGenerator _emailGenerator;
         private ProfilesService _profilesService;
         private SuitableProfileService _suitableProfileService;
+        private AccountsService _accountsService;
 
         public DataService()
         {
             _emailGenerator = new EmailGenerator();
             _profilesService = new ProfilesService();
             _suitableProfileService = new SuitableProfileService();
+            _accountsService = new AccountsService();
         }
 
         public void SearchSuitableDirectorsCompanies(IEnumerable<CompanyEmployeesViewModel> companiesEmployees)
         {
+            var rolesSearch = _accountsService.GetAccountSettings().RolesSearch.Split(',');
+
             foreach (var companyEmployees in companiesEmployees)
             {
                 var result = new List<ResultViewModel>();
@@ -56,7 +59,7 @@ namespace ScraperLinkedIn.Services
                         {
                             FirstName = employee.FirstName,
                             LastName = employee.LastName,
-                            Job = RolesSearchParameters.Roles.Where(x => employee.Job.ToUpper().Split(' ').Contains(x)).FirstOrDefault(),
+                            Job = rolesSearch.Where(x => employee.Job.ToUpper().Split(' ').Contains(x.Trim())).FirstOrDefault(),
                             PersonLinkedIn = employee.ProfileUrl,
                             Company = companyEmployees.OrganizationName,
                             Website = companyEmployees.Website,

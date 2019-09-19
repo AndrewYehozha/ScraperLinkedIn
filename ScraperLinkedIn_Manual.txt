@@ -1,0 +1,17 @@
+--------------------------------------------------------------
+Setup service
+--------------------------------------------------------------
+
+1) Open console as Administrator
+2) cd C:\ScraperLinkedIn\Release
+3) ScraperLinkedIn.exe install/uninstall
+4) Open Services and start a service called ScraperLinkedInConsole
+
+
+
+
+--------------------------------------------------------------
+Additional information
+--------------------------------------------------------------
+
+--> If you change the service settings, you need to restart the service 
