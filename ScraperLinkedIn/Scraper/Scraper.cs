@@ -43,7 +43,6 @@ namespace ScraperLinkedIn.Scrapers
                 {
                     var options = new ChromeOptions();
                     options.AddArgument("no-sandbox");
-
                     driver = new ChromeDriver(options);
                     js = (IJavaScriptExecutor)driver;
 
@@ -63,6 +62,9 @@ namespace ScraperLinkedIn.Scrapers
             ProfileBatchSize = settings.ProfileBatchSize;
             Login = settings.Login;
             Password = settings.Password;
+
+            var rolesSearch = settings.RolesSearch.Split(',');
+            var technologiesSearch = settings.TechnologiesSearch.Split(',');
 
             try
             {
@@ -118,7 +120,7 @@ namespace ScraperLinkedIn.Scrapers
                 }
 
                 var profiles = _profilesService.GetProfiles(ProfileBatchSize);
-                GetEmployeeProfiles(profiles);
+                GetEmployeeProfiles(profiles, rolesSearch, technologiesSearch);
 
                 _loggerService.Add("End scraper process", "");
                 Close();
@@ -300,7 +302,7 @@ namespace ScraperLinkedIn.Scrapers
             }
         }
 
-        private void GetEmployeeProfiles(IEnumerable<ProfileViewModel> employees)
+        private void GetEmployeeProfiles(IEnumerable<ProfileViewModel> employees, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
         {
             _loggerService.Add("Profiles URLs to scrape", $"[\n{ string.Join(",\n", employees.Select(x => $"\t{ x.ProfileUrl }")) }\n]");
 
@@ -330,7 +332,7 @@ namespace ScraperLinkedIn.Scrapers
                     _loggerService.Add("Could not scrape profile, because this profile is not available", employee.ProfileUrl);
 
                     employee.ExecutionStatus = ExecutionStatuses.Failed;
-                    _profilesService.UpdateProfile(employee);
+                    _profilesService.UpdateProfile(employee, rolesSearch, technologiesSearch);
 
                     continue;
                 }
@@ -401,7 +403,7 @@ namespace ScraperLinkedIn.Scrapers
                     employee.ExecutionStatus = ExecutionStatuses.Failed;
                 }
 
-                _profilesService.UpdateProfile(employee);
+                _profilesService.UpdateProfile(employee, rolesSearch, technologiesSearch);
             }
         }
 

@@ -7,15 +7,13 @@ namespace ScraperLinkedIn
     {
         static void Main(string[] args)
         {
-            if (Environment.UserInteractive)
-            {
-                (new MyService()).Start();
-                Console.ReadKey(true);
-            }
-            else
-            {
-                ConfigureService.Configure();
-            }
+#if (DEBUG)
+            (new MyService()).Start();
+            Console.ReadKey(true);
+#elif (!DEBUG)
+
+            ConfigureService.Configure();
+#endif
         }
     }
 }

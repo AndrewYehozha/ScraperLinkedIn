@@ -77,6 +77,8 @@
           <Property Name="ProfileBatchSize" Type="int" Nullable="false" />
           <Property Name="Login" Type="nvarchar" MaxLength="100" Nullable="false" />
           <Property Name="Password" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="TechnologiesSearch" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="RolesSearch" Type="nvarchar(max)" Nullable="false" />
           <Property Name="AccountID" Type="int" Nullable="false" />
           <Property Name="DateUpdate" Type="datetime" Nullable="false" />
         </EntityType>
@@ -364,6 +366,8 @@
           <Property Name="AccountID" Type="Int32" Nullable="false" />
           <Property Name="DateUpdate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Login" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="TechnologiesSearch" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="RolesSearch" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -465,6 +469,8 @@
           <EntitySetMapping Name="Settings">
             <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Setting">
               <MappingFragment StoreEntitySet="Settings">
+                <ScalarProperty Name="RolesSearch" ColumnName="RolesSearch" />
+                <ScalarProperty Name="TechnologiesSearch" ColumnName="TechnologiesSearch" />
                 <ScalarProperty Name="Login" ColumnName="Login" />
                 <ScalarProperty Name="DateUpdate" ColumnName="DateUpdate" />
                 <ScalarProperty Name="AccountID" ColumnName="AccountID" />

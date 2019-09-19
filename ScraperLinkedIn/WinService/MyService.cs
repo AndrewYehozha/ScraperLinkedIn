@@ -18,11 +18,9 @@ namespace ScraperLinkedIn.WinService
             _accountsService = new AccountsService();
         }
 
-        public void Start()
+        public void OnStart()
         {
             _loggerService.Add("Scheduler service are starting...", "");
-
-            _scraper.Initialize();
 
             var settings = _accountsService.GetAccountSettings();
 
@@ -34,25 +32,31 @@ namespace ScraperLinkedIn.WinService
                     () =>
                     {
                         _loggerService.Add("Start a schedule", "With an interval in seconds");
+                        settings = _accountsService.GetAccountSettings();
+                        _scraper.Initialize();
                         _scraper.Run(settings);
                     });
                     break;
                 case IntervalTypes.Hour:
                     // IntervalInSeconds(start_hour, start_minute, hours)
-                    MyScheduler.IntervalInSeconds(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
+                    MyScheduler.IntervalInHours(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
                         _loggerService.Add("Start a schedule", "With an interval in hours");
+                        settings = _accountsService.GetAccountSettings();
+                        _scraper.Initialize();
                         _scraper.Run(settings);
                     });
                     break;
 
                 case IntervalTypes.Day:
                     // IntervalInSeconds(start_hour, start_minute, days)
-                    MyScheduler.IntervalInSeconds(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
+                    MyScheduler.IntervalInDays(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
                         _loggerService.Add("Start a schedule", "With an interval in days");
+                        settings = _accountsService.GetAccountSettings();
+                        _scraper.Initialize();
                         _scraper.Run(settings);
                     });
                     break;
@@ -64,7 +68,8 @@ namespace ScraperLinkedIn.WinService
 
             _loggerService.Add("Scheduler service started", "");
         }
-        public void Stop()
+
+        public void OnStop()
         {
             _loggerService.Add("Scheduler service is stoping...", "");
             _scraper.Close();

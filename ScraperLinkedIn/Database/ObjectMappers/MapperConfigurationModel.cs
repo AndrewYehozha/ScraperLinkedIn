@@ -16,32 +16,6 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                 {
                     var config = new MapperConfiguration(cfg =>
                     {
-                        cfg.CreateMap<Company, CompanyImportViewModel>()
-                           .ForMember(ci => ci.LinkedIn, opt => opt.MapFrom(c => c.LinkedInURL))
-                           .ForMember(ci => ci.Founders, opt => opt.MapFrom(c => c.Founders))
-                           .ForMember(ci => ci.HeadquartersLocation, opt => opt.MapFrom(c => c.HeadquartersLocation))
-                           .ForMember(ci => ci.OrganizationName, opt => opt.MapFrom(c => c.OrganizationName))
-                           .ForMember(ci => ci.OrganizationNameURL, opt => opt.MapFrom(c => c.OrganizationURL))
-                           .ForMember(ci => ci.Website, opt => opt.MapFrom(c => c.Website))
-                           .ForMember(ci => ci.Categories, opt => opt.MapFrom(c => c.Industry))
-                           .ForMember(ci => ci.Twitter, opt => opt.MapFrom(c => c.Twitter))
-                           .ForMember(ci => ci.Facebook, opt => opt.MapFrom(c => c.Facebook))
-                           .ForMember(ci => ci.PhoneNumber, opt => opt.MapFrom(c => c.PhoneNumber))
-                           .ForMember(ci => ci.NumberofEmployees, opt => opt.MapFrom(c => c.AmountEmployees));
-
-                        cfg.CreateMap<CompanyImportViewModel, Company>()
-                           .ForMember(c => c.LinkedInURL, opt => opt.MapFrom(ci => ci.LinkedIn))
-                           .ForMember(c => c.Founders, opt => opt.MapFrom(ci => ci.Founders))
-                           .ForMember(c => c.HeadquartersLocation, opt => opt.MapFrom(ci => ci.HeadquartersLocation))
-                           .ForMember(c => c.OrganizationName, opt => opt.MapFrom(ci => ci.OrganizationName))
-                           .ForMember(c => c.OrganizationURL, opt => opt.MapFrom(ci => ci.OrganizationNameURL))
-                           .ForMember(c => c.Website, opt => opt.MapFrom(ci => ci.Website))
-                           .ForMember(ci => ci.Industry, opt => opt.MapFrom(c => c.Categories))
-                           .ForMember(ci => ci.Twitter, opt => opt.MapFrom(c => c.Twitter))
-                           .ForMember(ci => ci.Facebook, opt => opt.MapFrom(c => c.Facebook))
-                           .ForMember(ci => ci.PhoneNumber, opt => opt.MapFrom(c => c.PhoneNumber))
-                           .ForMember(ci => ci.AmountEmployees, opt => opt.MapFrom(c => c.NumberofEmployees));
-
                         cfg.CreateMap<Company, CompanyEmployeesViewModel>()
                            .ForMember(ce => ce.Id, opt => opt.MapFrom(c => c.Id))
                            .ForMember(ce => ce.LinkedIn, opt => opt.MapFrom(c => c.LinkedInURL))
