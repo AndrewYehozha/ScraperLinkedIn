@@ -18,45 +18,43 @@ namespace ScraperLinkedIn.WinService
             _accountsService = new AccountsService();
         }
 
-        public void OnStart()
+        public async void OnStart()
         {
             _loggerService.Add("Scheduler service are starting...", "");
 
-            var settings = _accountsService.GetAccountSettings();
+            var settings = await _accountsService.GetAccountSettingsAsync();
+            _scraper.Initialize();
 
             switch (settings.IntervalType)
             {
                 case IntervalTypes.Second:
                     // IntervalInSeconds(start_hour, start_minute, hours)
+                    _loggerService.Add("Start a schedule", "With an interval in seconds");
+
                     MyScheduler.IntervalInSeconds(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
-                        _loggerService.Add("Start a schedule", "With an interval in seconds");
-                        settings = _accountsService.GetAccountSettings();
-                        _scraper.Initialize();
                         _scraper.Run(settings);
                     });
                     break;
                 case IntervalTypes.Hour:
                     // IntervalInSeconds(start_hour, start_minute, hours)
+                    _loggerService.Add("Start a schedule", "With an interval in hours");
+
                     MyScheduler.IntervalInHours(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
-                        _loggerService.Add("Start a schedule", "With an interval in hours");
-                        settings = _accountsService.GetAccountSettings();
-                        _scraper.Initialize();
                         _scraper.Run(settings);
                     });
                     break;
 
                 case IntervalTypes.Day:
                     // IntervalInSeconds(start_hour, start_minute, days)
+                    _loggerService.Add("Start a schedule", "With an interval in days");
+
                     MyScheduler.IntervalInDays(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
-                        _loggerService.Add("Start a schedule", "With an interval in days");
-                        settings = _accountsService.GetAccountSettings();
-                        _scraper.Initialize();
                         _scraper.Run(settings);
                     });
                     break;
@@ -65,8 +63,6 @@ namespace ScraperLinkedIn.WinService
                     _loggerService.Add("Error INTERVAL_TYPE", "Invalid IntervalType.Please, check the value of < INTERVAL_TYPE > in App.config.");
                     break;
             }
-
-            _loggerService.Add("Scheduler service started", "");
         }
 
         public void OnStop()

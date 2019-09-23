@@ -11,14 +11,14 @@ namespace ScraperLinkedIn.Services
             _loggerRepository = new LoggerRepository();
         }
 
-        public void Add(string message)
+        public async void Add(string message)
         {
-            _loggerRepository.Add(message);
+            await _loggerRepository.AddAsync(message);
         }
 
-        public void Add(string remarks, string message)
+        public async void Add(string remarks, string message)
         {
-            _loggerRepository.Add(remarks, message);
+            await _loggerRepository.AddAsync(remarks, message);
         }
     }
 }

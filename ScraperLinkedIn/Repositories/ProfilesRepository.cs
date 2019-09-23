@@ -1,51 +1,50 @@
 ﻿using ScraperLinkedIn.Database;
-using ScraperLinkedIn.Database.ObjectMappers;
-using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Types;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using Profile = ScraperLinkedIn.Database.Profile;
 
 namespace ScraperLinkedIn.Repositories
 {
     class ProfilesRepository
     {
-        public IEnumerable<ProfileViewModel> GetProfiles(int profile_batch_size)
+        public async Task<IEnumerable<Profile>> GetProfilesAsync(int profile_batch_size)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
                 var result = db.Profiles.Where(x => (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Take(profile_batch_size);
 
-                result.Where(x => x.ExecutionStatusID == (int)ExecutionStatuses.Created).ToList().ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
-                db.SaveChanges();
-
-                return MapperConfigurationModel.Instance.Map<IEnumerable<Profile>, IEnumerable<ProfileViewModel>>(result);
-            }
-        }
-
-        public int GetCountRawProfiles()
-        {
-            using (var db = new ScraperLinkedInDBEntities())
-            {
-                var count = db.Profiles.Where(x => (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Count();
-
-                return count;
-            }
-        }
-
-        public int GetCountNewProfiles()
-        {
-            using (var db = new ScraperLinkedInDBEntities())
-            {
-                var result = db.Profiles.Where(x => (DbFunctions.TruncateTime(x.DateСreation) == DbFunctions.TruncateTime(DateTime.Now)) && (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created)).Count();
+                (await result.Where(x => x.ExecutionStatusID == (int)ExecutionStatuses.Created).ToListAsync()).ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
+                await db.SaveChangesAsync();
 
                 return result;
             }
         }
 
-        public void AddProfiles(IEnumerable<Profile> profiles)
+        public async Task<int> GetCountRawProfilesAsync()
+        {
+            using (var db = new ScraperLinkedInDBEntities())
+            {
+                var count = await db.Profiles.Where(x => (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).CountAsync();
+
+                return count;
+            }
+        }
+
+        public async Task<int> GetCountNewProfilesAsync()
+        {
+            using (var db = new ScraperLinkedInDBEntities())
+            {
+                var result = await db.Profiles.Where(x => (DbFunctions.TruncateTime(x.DateСreation) == DbFunctions.TruncateTime(DateTime.Now)) && (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created)).CountAsync();
+
+                return result;
+            }
+        }
+
+        public async Task AddProfilesAsync(IEnumerable<Profile> profiles)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
@@ -58,15 +57,15 @@ namespace ScraperLinkedIn.Repositories
                     db.Profiles.Add(profile);
                 }
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
 
-        public void UpdateProfile(Profile profile)
+        public async Task UpdateProfileAsync(Profile profile)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                var profileDB = db.Profiles.Where(x => x.Id == profile.Id).FirstOrDefault();
+                var profileDB = await db.Profiles.Where(x => x.Id == profile.Id).FirstOrDefaultAsync();
 
                 profileDB.FirstName = profile.FirstName ?? "";
                 profileDB.LastName = profile.LastName ?? "";
@@ -77,29 +76,16 @@ namespace ScraperLinkedIn.Repositories
                 profileDB.ProfileStatusID = profile.ProfileStatusID;
                 profileDB.DateСreation = profile.DateСreation;
 
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
 
-        public void UpdateProfilesExecutionStatusByCompanyID(ExecutionStatuses executionStatus, int companyID)
+        public async Task UpdateProfilesExecutionStatusByCompanyIDAsync(ExecutionStatuses executionStatus, int companyID)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                db.Profiles.Where(x => x.CompanyID == companyID).ToList().ForEach(y => y.ExecutionStatusID = (int)executionStatus);
-                db.SaveChanges();
-            }
-        }
-
-        public void UpdateProfilesWithStatusFailed(IEnumerable<Profile> profiles)
-        {
-            using (var db = new ScraperLinkedInDBEntities())
-            {
-                var failedProfilesIDs = profiles.Where(y => y.ExecutionStatusID == (int)ExecutionStatuses.Failed).Select(y => y.Id);
-
-                var profilesDB = db.Profiles.Where(x => failedProfilesIDs.Contains(x.Id)).ToList();
-                profilesDB.ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Failed);
-
-                db.SaveChanges();
+                (await db.Profiles.Where(x => x.CompanyID == companyID).ToListAsync()).ForEach(y => y.ExecutionStatusID = (int)executionStatus);
+                await db.SaveChangesAsync();
             }
         }
     }
