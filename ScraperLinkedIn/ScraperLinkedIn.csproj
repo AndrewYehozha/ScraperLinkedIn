@@ -257,6 +257,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ScraperLinkedInDBModel.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="ScraperLinkedIn_Manual.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

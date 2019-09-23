@@ -22,25 +22,28 @@ namespace ScraperLinkedIn.Email
 
             Emails = new List<string>();
 
-            foreach (var email in Generator(firstName, lastName, companyDomain)) //Execution time: 25-30s
+            if (!string.IsNullOrEmpty(companyDomain))
             {
-                if (!isCorrectDomain || Emails.Count > 4) { break; }
-
-                if (!EmailValidator.Validate(email, out result))
+                foreach (var email in Generator(firstName, lastName, companyDomain)) //Execution time: 25-30s
                 {
-                    Console.WriteLine("\nNo internet connection or mailserver is down / busy\n\n");
-                }
+                    if (!isCorrectDomain || Emails.Count > 4) { break; }
 
-                switch (result)
-                {
-                    case EmailValidationResult.OK:
-                        Emails.Add(email);
-                        break;
+                    if (!EmailValidator.Validate(email, out result))
+                    {
+                        Console.WriteLine("\nNo internet connection or mailserver is down / busy\n\n");
+                    }
 
-                    case EmailValidationResult.NoMailForDomain:
-                        //Emails are not configured for domain
-                        isCorrectDomain = false;
-                        break;
+                    switch (result)
+                    {
+                        case EmailValidationResult.OK:
+                            Emails.Add(email);
+                            break;
+
+                        case EmailValidationResult.NoMailForDomain:
+                            //Emails are not configured for domain
+                            isCorrectDomain = false;
+                            break;
+                    }
                 }
             }
 

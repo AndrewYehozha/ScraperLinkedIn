@@ -1,21 +1,22 @@
 ﻿using ScraperLinkedIn.Database;
 using System;
+using System.Threading.Tasks;
 
 namespace ScraperLinkedIn.Repositories
 {
     class LoggerRepository
     {
-        public void Add(string message)
+        public async Task AddAsync(string message)
         {
-            AddToDB(message);
+            await AddToDBAsync(message);
         }
 
-        public void Add(string remarks, string message)
+        public async Task AddAsync(string remarks, string message)
         {
-            AddToDB(message, remarks);
+            await AddToDBAsync(message, remarks);
         }
 
-        private void AddToDB(string message, string remarks = "")
+        private async Task AddToDBAsync(string message, string remarks = "")
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
@@ -27,7 +28,8 @@ namespace ScraperLinkedIn.Repositories
                 };
 
                 db.DebugLogs.Add(log);
-                db.SaveChanges();
+
+                await db.SaveChangesAsync();
             }
         }
     }

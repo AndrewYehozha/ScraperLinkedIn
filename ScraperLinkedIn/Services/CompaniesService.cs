@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ScraperLinkedIn.Repositories;
 using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Database;
+using System.Threading.Tasks;
 
 namespace ScraperLinkedIn.Services
 {
@@ -17,26 +18,25 @@ namespace ScraperLinkedIn.Services
             _companyRepository = new CompaniesRepository();
         }
 
-        public IEnumerable<CompanyEmployeesViewModel> GetCompanies(int company_batch_size)
+        public async Task<IEnumerable<CompanyEmployeesViewModel>> GetCompaniesAsync(int company_batch_size)
         {
-            return _companyRepository.GetCompanies(company_batch_size);
+            var companies = await _companyRepository.GetCompaniesAsync(company_batch_size);
+
+            return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(companies);
         }
 
-        public IEnumerable<CompanyEmployeesViewModel> GetCompaniesForSearch()
+        public async Task<IEnumerable<CompanyEmployeesViewModel>> GetCompaniesForSearchAsync()
         {
-            return _companyRepository.GetCompaniesForSearch();
+            var companies = await _companyRepository.GetCompaniesForSearchAsync();
+
+            return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(companies);
         }
 
-        public void UpdateCompany(CompanyEmployeesViewModel companyEmployees)
+        public async void UpdateCompany(CompanyEmployeesViewModel companyEmployees)
         {
-            _companyRepository.UpdateCompany(MapperConfigurationModel.Instance.Map<CompanyEmployeesViewModel, Company>(companyEmployees));
+            await _companyRepository.UpdateCompanyAsync(MapperConfigurationModel.Instance.Map<CompanyEmployeesViewModel, Company>(companyEmployees));
 
             _profilesService.AddProfiles(companyEmployees.Employees ?? new List<ProfileViewModel>());
-        }
-
-        public void UpdateCompaniesWithStatusFailed(IEnumerable<CompanyEmployeesViewModel> companies)
-        {
-            _companyRepository.UpdateCompaniesWithStatusFailed(MapperConfigurationModel.Instance.Map<IEnumerable<CompanyEmployeesViewModel>, IEnumerable<Company>>(companies));
         }
     }
 }

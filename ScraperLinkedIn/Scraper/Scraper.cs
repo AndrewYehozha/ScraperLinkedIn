@@ -46,8 +46,8 @@ namespace ScraperLinkedIn.Scrapers
                     driver = new ChromeDriver(options);
                     js = (IJavaScriptExecutor)driver;
 
-                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                     driver.Manage().Window.Maximize();
+                    driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(3);
                 }
             }
             catch (Exception ex)
@@ -56,7 +56,7 @@ namespace ScraperLinkedIn.Scrapers
             }
         }
 
-        public void Run(SettingsViewModel settings)
+        public async void Run(SettingsViewModel settings)
         {
             CompanyBatchSize = settings.CompanyBatchSize;
             ProfileBatchSize = settings.ProfileBatchSize;
@@ -71,9 +71,25 @@ namespace ScraperLinkedIn.Scrapers
                 _loggerService.Add("Connecting to LinkedIn...", "");
 
                 var cookie = new Cookie("li_at", settings.Token, ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
-                driver.Navigate().GoToUrl("https://www.linkedin.com");
-                driver.Manage().Cookies.AddCookie(cookie);
-                driver.Navigate().Refresh();
+
+                try
+                {
+                    driver.Navigate().GoToUrl("https://www.linkedin.com");
+                }
+                catch (WebDriverException)
+                {
+                    driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                    driver.Manage().Cookies.AddCookie(cookie);
+                }
+
+                try
+                {
+                    driver.Navigate().Refresh();
+                }
+                catch (WebDriverException)
+                {
+                    driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                }
 
                 try // Validation of the entered token
                 {
@@ -86,7 +102,6 @@ namespace ScraperLinkedIn.Scrapers
 
                     if (CheckBrowserErrors() || !SignIn())
                     {
-                        Close();
                         return;
                     }
                 }
@@ -94,24 +109,24 @@ namespace ScraperLinkedIn.Scrapers
                 _loggerService.Add("Start scraped data processing", "");
 
                 //Scraped data processing
-                var searchCompanies = _companyService.GetCompaniesForSearch();
+                var searchCompanies = await _companyService.GetCompaniesForSearchAsync();
                 _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
 
                 //Scraper process
                 _loggerService.Add("Start scraper process", "");
 
-                var rawProfilesCount = _profilesService.GetCountRawProfiles();
+                var rawProfilesCount = await _profilesService.GetCountRawProfilesAsync();
 
                 if (rawProfilesCount < ProfileBatchSize)
                 {
-                    var newPofilesCount = _profilesService.GetCountNewProfiles();
+                    var newPofilesCount = await _profilesService.GetCountNewProfilesAsync();
 
                     while (newPofilesCount <= ProfileBatchSize * 1.6)
                     {
-                        var companies = _companyService.GetCompanies(CompanyBatchSize);
+                        var companies = await _companyService.GetCompaniesAsync(CompanyBatchSize);
                         GetCompaniesEmployees(companies);
 
-                        newPofilesCount = _profilesService.GetCountNewProfiles();
+                        newPofilesCount = await _profilesService.GetCountNewProfilesAsync();
                     }
                 }
                 else
@@ -119,11 +134,10 @@ namespace ScraperLinkedIn.Scrapers
                     ProfileBatchSize *= 2;
                 }
 
-                var profiles = _profilesService.GetProfiles(ProfileBatchSize);
+                var profiles = await _profilesService.GetProfilesAsync(ProfileBatchSize);
                 GetEmployeeProfiles(profiles, rolesSearch, technologiesSearch);
 
                 _loggerService.Add("End scraper process", "");
-                Close();
             }
             catch (Exception ex)
             {
@@ -249,7 +263,14 @@ namespace ScraperLinkedIn.Scrapers
                     Thread.Sleep(2000); // Waiting for page to load
                     var paginationUrl = driver.Url;
 
-                    driver.Navigate().GoToUrl($"{ paginationUrl }&page=1");
+                    try
+                    {
+                        driver.Navigate().GoToUrl($"{ paginationUrl }&page=1");
+                    }
+                    catch (WebDriverException)
+                    {
+                        driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                    }
 
                     try
                     {
@@ -262,7 +283,15 @@ namespace ScraperLinkedIn.Scrapers
 
                     for (int i = 1; ; i++)
                     {
-                        driver.Navigate().GoToUrl($"{ paginationUrl }&page={ i }"); // Pagination Employees
+                        try
+                        {
+                            driver.Navigate().GoToUrl($"{ paginationUrl }&page={ i }"); // Pagination Employees
+                        }
+                        catch (WebDriverException)
+                        {
+                            driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                        }
+
                         js.ExecuteScript("window.scrollBy(0,1000)");
                         Thread.Sleep(2000); // Waiting for page to load
 
@@ -439,7 +468,14 @@ namespace ScraperLinkedIn.Scrapers
         {
             try
             {
-                driver.Navigate().GoToUrl("https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin");
+                try
+                {
+                    driver.Navigate().GoToUrl("https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin");
+                }
+                catch (WebDriverException)
+                {
+                    driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
+                }
 
                 Thread.Sleep(3000); //Loading Sign in page
 
@@ -458,10 +494,18 @@ namespace ScraperLinkedIn.Scrapers
 
             try
             {
-                Thread.Sleep(2000); //Wait authorization
+                Thread.Sleep(3000); //Wait authorization
+                driver.FindElement(By.TagName("body")).SendKeys("Keys.ESCAPE");
                 driver.FindElement(By.Id("username"));
 
                 return false;
+            }
+            catch { }
+
+            try
+            {
+                var profileName = driver.FindElement(By.ClassName("profile-rail-card__actor-link")).Text;
+                _loggerService.Add($"Connected successfully as", profileName);
             }
             catch { }
 

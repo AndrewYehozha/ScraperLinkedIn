@@ -8,7 +8,7 @@ namespace ScraperLinkedIn
         static void Main(string[] args)
         {
 #if (DEBUG)
-            (new MyService()).Start();
+            (new MyService()).OnStart();
             Console.ReadKey(true);
 #elif (!DEBUG)
 

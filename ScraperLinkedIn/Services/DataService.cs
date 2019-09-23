@@ -22,9 +22,10 @@ namespace ScraperLinkedIn.Services
             _accountsService = new AccountsService();
         }
 
-        public void SearchSuitableDirectorsCompanies(IEnumerable<CompanyEmployeesViewModel> companiesEmployees)
+        public async void SearchSuitableDirectorsCompanies(IEnumerable<CompanyEmployeesViewModel> companiesEmployees)
         {
-            var rolesSearch = _accountsService.GetAccountSettings().RolesSearch.Split(',');
+            var settings = await _accountsService.GetAccountSettingsAsync();
+            var rolesSearch = settings != null ? settings.RolesSearch.Split(',') : new string[] { };
 
             foreach (var companyEmployees in companiesEmployees)
             {

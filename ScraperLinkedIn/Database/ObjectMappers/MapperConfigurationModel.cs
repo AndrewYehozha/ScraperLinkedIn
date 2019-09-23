@@ -25,9 +25,14 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(ce => ce.OrganizationNameURL, opt => opt.MapFrom(c => c.OrganizationURL))
                            .ForMember(ce => ce.Website, opt => opt.MapFrom(c => c.Website))
                            .ForMember(ce => ce.LogoCompanyUrl, opt => opt.MapFrom(c => c.LogoUrl))
+                           .ForMember(ce => ce.Categories, opt => opt.MapFrom(c => c.Industry))
                            .ForMember(ce => ce.Specialties, opt => opt.MapFrom(c => c.Specialties))
+                           .ForMember(ce => ce.Twitter, opt => opt.MapFrom(c => c.Twitter))
+                           .ForMember(ce => ce.Facebook, opt => opt.MapFrom(c => c.Facebook))
+                           .ForMember(ce => ce.PhoneNumber, opt => opt.MapFrom(c => c.PhoneNumber))
+                           .ForMember(ce => ce.NumberofEmployees, opt => opt.MapFrom(c => c.AmountEmployees))
                            .ForMember(ce => ce.ExecutionStatus, opt => opt.MapFrom(c => (ExecutionStatuses)c.ExecutionStatusID))
-                            .ForMember(ce => ce.Employees, opt => opt.MapFrom(c => c.Profiles != null ? Instance.Map<IEnumerable<Profile>, IEnumerable<ProfileViewModel>>(c.Profiles) : new List<ProfileViewModel>()));
+                           .ForMember(ce => ce.Employees, opt => opt.MapFrom(c => c.Profiles != null ? Instance.Map<IEnumerable<Profile>, IEnumerable<ProfileViewModel>>(c.Profiles) : new List<ProfileViewModel>()));
 
                         cfg.CreateMap<CompanyEmployeesViewModel, Company>()
                            .ForMember(c => c.Id, opt => opt.MapFrom(ce => ce.Id))
@@ -38,6 +43,12 @@ namespace ScraperLinkedIn.Database.ObjectMappers
                            .ForMember(c => c.OrganizationURL, opt => opt.MapFrom(ce => ce.OrganizationNameURL))
                            .ForMember(c => c.Website, opt => opt.MapFrom(ce => ce.Website))
                            .ForMember(c => c.LogoUrl, opt => opt.MapFrom(ce => ce.LogoCompanyUrl))
+                           .ForMember(ce => ce.Industry, opt => opt.MapFrom(c => c.Categories))
+                           .ForMember(ce => ce.Specialties, opt => opt.MapFrom(c => c.Specialties))
+                           .ForMember(ce => ce.Twitter, opt => opt.MapFrom(c => c.Twitter))
+                           .ForMember(ce => ce.Facebook, opt => opt.MapFrom(c => c.Facebook))
+                           .ForMember(ce => ce.PhoneNumber, opt => opt.MapFrom(c => c.PhoneNumber))
+                           .ForMember(ce => ce.AmountEmployees, opt => opt.MapFrom(c => c.NumberofEmployees))
                            .ForMember(c => c.Specialties, opt => opt.MapFrom(ce => ce.Specialties))
                            .ForMember(c => c.ExecutionStatusID, opt => opt.MapFrom(ce => (int)ce.ExecutionStatus))
                            .ForMember(c => c.Profiles, opt => opt.Ignore())

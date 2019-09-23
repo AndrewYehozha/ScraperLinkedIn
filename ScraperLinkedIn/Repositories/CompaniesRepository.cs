@@ -1,67 +1,52 @@
 ﻿using ScraperLinkedIn.Database;
-using ScraperLinkedIn.Database.ObjectMappers;
-using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Types;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ScraperLinkedIn.Repositories
 {
     class CompaniesRepository
     {
-        public IEnumerable<CompanyEmployeesViewModel> GetCompanies(int company_batch_size)
+        public async Task<IEnumerable<Company>> GetCompaniesAsync(int company_batch_size)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                var result = db.Companies.Where(x => !string.IsNullOrEmpty(x.LinkedInURL.Trim()) && !string.IsNullOrEmpty(x.Website.Trim()) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Take(company_batch_size);
+                var result = await db.Companies.Where(x => !string.IsNullOrEmpty(x.LinkedInURL.Trim()) && !string.IsNullOrEmpty(x.Website.Trim()) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Take(company_batch_size).ToListAsync();
 
-                result.ToList().ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
-                db.SaveChanges();
+                result.ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
+                await db.SaveChangesAsync();
 
-                return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(result);
+                return result;
             }
         }
 
-        public IEnumerable<CompanyEmployeesViewModel> GetCompaniesForSearch()
+        public async Task<IEnumerable<Company>> GetCompaniesForSearchAsync()
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                var lastProcessedCompanyId = db.Profiles.Where(x => (x.ExecutionStatusID == (int)ExecutionStatuses.Queued) && (x.ProfileStatusID != (int)ProfileStatuses.Undefined)).OrderByDescending(d => d.Id).Select(x => x.CompanyID).FirstOrDefault();
+                var lastProcessedCompanyId = await db.Profiles.Where(x => (x.ExecutionStatusID == (int)ExecutionStatuses.Queued) && (x.ProfileStatusID != (int)ProfileStatuses.Undefined)).OrderByDescending(d => d.Id).Select(x => x.CompanyID).FirstOrDefaultAsync();
 
-                var unsuitableCompanies = db.Companies.Where(x => (x.Id < lastProcessedCompanyId) && (x.ExecutionStatusID == (int)ExecutionStatuses.Success) && x.Profiles.Any(y => (y.ExecutionStatusID != (int)ExecutionStatuses.Success)) && !x.Profiles.Any(y => (y.ProfileStatusID == (int)ProfileStatuses.Developer))).ToList();
-                unsuitableCompanies.ToList().ForEach(x => x.Profiles.ToList().ForEach(y => y.ExecutionStatusID = (int)ExecutionStatuses.Success));
-                db.SaveChanges();
+                var unsuitableCompanies = await db.Companies.Where(x => (x.Id < lastProcessedCompanyId) && (x.ExecutionStatusID == (int)ExecutionStatuses.Success) && x.Profiles.Any(y => (y.ExecutionStatusID != (int)ExecutionStatuses.Success)) && !x.Profiles.Any(y => (y.ProfileStatusID == (int)ProfileStatuses.Developer))).ToListAsync();
+                unsuitableCompanies.ForEach(x => x.Profiles.ToList().ForEach(y => y.ExecutionStatusID = (int)ExecutionStatuses.Success));
+                await db.SaveChangesAsync();
 
-                var result = db.Companies.Where(x => (x.Id < lastProcessedCompanyId) && (x.ExecutionStatusID == (int)ExecutionStatuses.Success) && x.Profiles.Any(y => (y.ProfileStatusID == (int)ProfileStatuses.Developer) && (y.ExecutionStatusID != (int)ExecutionStatuses.Success))).ToList();
-
-                return MapperConfigurationModel.Instance.Map<IEnumerable<Company>, IEnumerable<CompanyEmployeesViewModel>>(result);
+                return await db.Companies.Where(x => (x.Id < lastProcessedCompanyId) && (x.ExecutionStatusID == (int)ExecutionStatuses.Success) && x.Profiles.Any(y => (y.ProfileStatusID == (int)ProfileStatuses.Developer) && (y.ExecutionStatusID != (int)ExecutionStatuses.Success))).ToListAsync();
             }
         }
 
-        public void UpdateCompany(Company company)
+        public async Task UpdateCompanyAsync(Company company)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                var companyDB = db.Companies.Where(x => x.Id == company.Id).FirstOrDefault();
+                var companyDB = await db.Companies.Where(x => x.Id == company.Id).FirstOrDefaultAsync();
 
                 companyDB.LogoUrl = company.LogoUrl ?? "";
                 companyDB.Specialties = company.Specialties ?? "";
                 companyDB.ExecutionStatusID = company.ExecutionStatusID;
 
-                db.SaveChanges();
-            }
-        }
-
-        public void UpdateCompaniesWithStatusFailed(IEnumerable<Company> companies)
-        {
-            using (var db = new ScraperLinkedInDBEntities())
-            {
-                var failedCompaniesIDs = companies.Where(y => y.ExecutionStatusID == (int)ExecutionStatuses.Failed).Select(y => y.Id);
-
-                var companiesDB = db.Companies.Where(x => failedCompaniesIDs.Contains(x.Id)).ToList();
-                companiesDB.ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Failed);
-
-                db.SaveChanges();
+                await db.SaveChangesAsync();
             }
         }
     }

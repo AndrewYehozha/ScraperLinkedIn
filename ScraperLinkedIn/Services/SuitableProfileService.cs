@@ -15,9 +15,9 @@ namespace ScraperLinkedIn.Services
             _suitableProfileRepository = new SuitableProfileRepository();
         }
 
-        public void AddSuitableProfile(IEnumerable<ResultViewModel> results)
+        public async void AddSuitableProfile(IEnumerable<ResultViewModel> results)
         {
-            _suitableProfileRepository.AddSuitableProfile(MapperConfigurationModel.Instance.Map<IEnumerable<ResultViewModel>, IEnumerable<SuitableProfile>> (results));
+            await _suitableProfileRepository.AddSuitableProfileAsync(MapperConfigurationModel.Instance.Map<IEnumerable<ResultViewModel>, IEnumerable<SuitableProfile>> (results));
         }
     }
 }
