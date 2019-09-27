@@ -18,17 +18,22 @@ namespace ScraperLinkedIn.WinService
             _accountsService = new AccountsService();
         }
 
-        public async void OnStart()
+        public void OnStart()
         {
             _loggerService.Add("Scheduler service are starting...", "");
 
-            var settings = await _accountsService.GetAccountSettingsAsync();
-            _scraper.Initialize();
+            if (!_scraper.Initialize())
+            {
+                OnStop(true);
+            }
+
+            var settings = _accountsService.GetAccountSettings();
+            _scraper.Run(settings);
 
             switch (settings.IntervalType)
             {
                 case IntervalTypes.Second:
-                    // IntervalInSeconds(start_hour, start_minute, hours)
+
                     _loggerService.Add("Start a schedule", "With an interval in seconds");
 
                     MyScheduler.IntervalInSeconds(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
@@ -38,7 +43,7 @@ namespace ScraperLinkedIn.WinService
                     });
                     break;
                 case IntervalTypes.Hour:
-                    // IntervalInSeconds(start_hour, start_minute, hours)
+
                     _loggerService.Add("Start a schedule", "With an interval in hours");
 
                     MyScheduler.IntervalInHours(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
@@ -49,7 +54,7 @@ namespace ScraperLinkedIn.WinService
                     break;
 
                 case IntervalTypes.Day:
-                    // IntervalInSeconds(start_hour, start_minute, days)
+
                     _loggerService.Add("Start a schedule", "With an interval in days");
 
                     MyScheduler.IntervalInDays(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
@@ -65,11 +70,25 @@ namespace ScraperLinkedIn.WinService
             }
         }
 
-        public void OnStop()
+        public void OnStop(bool isException)
         {
             _loggerService.Add("Scheduler service is stoping...", "");
             _scraper.Close();
             _loggerService.Add("Scheduler service stopped", "");
+
+            if (!isException)
+            {
+                _accountsService.UpdateScraperStatus(ScraperStatuses.OFF);
+            }
+        }
+
+        public void OnShutdown()
+        {
+            _loggerService.Add("Scheduler service is stoping...", "");
+            _scraper.Close();
+            _loggerService.Add("Scheduler service stopped", "System shutdown");
+
+            _accountsService.UpdateScraperStatus(ScraperStatuses.Exception);
         }
     }
 }

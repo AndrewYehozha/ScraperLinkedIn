@@ -203,6 +203,9 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="Database\ScraperStatus.cs">
+      <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Database\Setting.cs">
       <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
     </Compile>
@@ -233,6 +236,7 @@
     <Compile Include="Types\ExecutionStatuses.cs" />
     <Compile Include="Types\IntervalTypes.cs" />
     <Compile Include="Types\ProfileStatuses.cs" />
+    <Compile Include="Types\ScraperStatuses.cs" />
     <Compile Include="WinService\ConfigureService.cs" />
     <Compile Include="WinService\MyService.cs" />
   </ItemGroup>

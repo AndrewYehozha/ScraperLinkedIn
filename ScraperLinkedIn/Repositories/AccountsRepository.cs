@@ -1,16 +1,26 @@
 ﻿using ScraperLinkedIn.Database;
-using System.Data.Entity;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace ScraperLinkedIn.Repositories
 {
     class AccountsRepository
     {
-        public async Task<Setting> GetAccountSettingsAsync()
+        public Setting GetAccountSettings()
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                return await db.Settings.FirstOrDefaultAsync();
+                return db.Settings.FirstOrDefault();
+            }
+        }
+
+        public void UpdateScraperStatus(int scraperStatusID)
+        {
+            using (var db = new ScraperLinkedInDBEntities())
+            {
+                var settings = db.Settings.FirstOrDefault();
+                settings.ScraperStatusID = scraperStatusID;
+
+                db.SaveChanges();
             }
         }
     }
