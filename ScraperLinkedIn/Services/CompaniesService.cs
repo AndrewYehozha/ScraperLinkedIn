@@ -1,15 +1,17 @@
 ﻿using ScraperLinkedIn.Models;
 using System.Collections.Generic;
 using ScraperLinkedIn.Repositories;
+using ScraperLinkedIn.Services.Interfaces;
 using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Database;
+using ScraperLinkedIn.Repositories.Interfaces;
 
 namespace ScraperLinkedIn.Services
 {
-    class CompaniesService
+    class CompaniesService : ICompaniesService
     {
-        private ProfilesService _profilesService;
-        private CompaniesRepository _companyRepository;
+        private IProfilesService _profilesService;
+        private ICompaniesRepository _companyRepository;
 
         public CompaniesService()
         {

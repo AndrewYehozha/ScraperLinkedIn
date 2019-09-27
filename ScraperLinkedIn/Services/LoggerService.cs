@@ -1,10 +1,12 @@
 ﻿using ScraperLinkedIn.Repositories;
+using ScraperLinkedIn.Repositories.Interfaces;
+using ScraperLinkedIn.Services.Interfaces;
 
 namespace ScraperLinkedIn.Services
 {
-    class LoggerService
+    class LoggerService : ILoggerService
     {
-        private LoggerRepository _loggerRepository;
+        private ILoggerRepository _loggerRepository;
 
         public LoggerService()
         {

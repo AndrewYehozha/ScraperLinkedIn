@@ -1,10 +1,11 @@
 ﻿using ScraperLinkedIn.Database;
+using ScraperLinkedIn.Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 
 namespace ScraperLinkedIn.Repositories
 {
-    class SuitableProfileRepository
+    class SuitableProfileRepository : ISuitableProfileRepository
     {
         public void AddSuitableProfile(IEnumerable<SuitableProfile> suitableProfiles)
         {

@@ -3,16 +3,17 @@ using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Types;
 using System;
 using System.Collections.Generic;
+using ScraperLinkedIn.Services.Interfaces;
 using System.Linq;
 
 namespace ScraperLinkedIn.Services
 {
-    class DataService
+    class DataService : IDataService
     {
         private EmailGenerator _emailGenerator;
-        private ProfilesService _profilesService;
-        private SuitableProfileService _suitableProfileService;
-        private AccountsService _accountsService;
+        private IProfilesService _profilesService;
+        private ISuitableProfileService _suitableProfileService;
+        private IAccountsService _accountsService;
 
         public DataService()
         {
@@ -87,7 +88,7 @@ namespace ScraperLinkedIn.Services
                     if (string.IsNullOrEmpty(fullName.Trim()))
                         continue;
 
-                    var founderProfile = companyEmployees.Employees.Where(x => x.FullName == fullName && x.ProfileStatus == ProfileStatuses.Chief).FirstOrDefault();
+                    var founderProfile = companyEmployees.Employees.Where(x => x.FullName == fullName.Trim() && x.ProfileStatus == ProfileStatuses.Chief).FirstOrDefault();
 
                     if (founderProfile == null)
                     {

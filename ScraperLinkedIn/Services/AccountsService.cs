@@ -2,13 +2,15 @@
 using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Repositories;
+using ScraperLinkedIn.Repositories.Interfaces;
+using ScraperLinkedIn.Services.Interfaces;
 using ScraperLinkedIn.Types;
 
 namespace ScraperLinkedIn.Services
 {
-    class AccountsService
+    class AccountsService : IAccountsService
     {
-        private AccountsRepository _accountsRepository;
+        private IAccountsRepository _accountsRepository;
 
         public AccountsService()
         {

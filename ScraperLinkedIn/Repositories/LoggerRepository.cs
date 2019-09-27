@@ -1,10 +1,11 @@
 ﻿using ScraperLinkedIn.Database;
+using ScraperLinkedIn.Repositories.Interfaces;
 using System;
 using System.Threading.Tasks;
 
 namespace ScraperLinkedIn.Repositories
 {
-    class LoggerRepository
+    class LoggerRepository : ILoggerRepository
     {
         public async Task AddAsync(string message)
         {

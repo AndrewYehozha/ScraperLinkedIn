@@ -1,9 +1,10 @@
 ﻿using ScraperLinkedIn.Database;
+using ScraperLinkedIn.Repositories.Interfaces;
 using System.Linq;
 
 namespace ScraperLinkedIn.Repositories
 {
-    class AccountsRepository
+    class AccountsRepository : IAccountsRepository
     {
         public Setting GetAccountSettings()
         {
