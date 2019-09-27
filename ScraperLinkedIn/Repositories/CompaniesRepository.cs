@@ -1,6 +1,7 @@
 ﻿using ScraperLinkedIn.Database;
 using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Models;
+using ScraperLinkedIn.Repositories.Interfaces;
 using ScraperLinkedIn.Types;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -8,7 +9,7 @@ using System.Linq;
 
 namespace ScraperLinkedIn.Repositories
 {
-    class CompaniesRepository
+    class CompaniesRepository : ICompaniesRepository
     {
         public IEnumerable<CompanyEmployeesViewModel> GetCompanies(int company_batch_size)
         {

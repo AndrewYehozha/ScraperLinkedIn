@@ -1,6 +1,7 @@
 ﻿using ScraperLinkedIn.Database;
 using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Models;
+using ScraperLinkedIn.Repositories.Interfaces;
 using ScraperLinkedIn.Types;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using Profile = ScraperLinkedIn.Database.Profile;
 
 namespace ScraperLinkedIn.Repositories
 {
-    class ProfilesRepository
+    class ProfilesRepository : IProfilesRepository
     {
         public IEnumerable<ProfileViewModel> GetProfiles(int profile_batch_size)
         {

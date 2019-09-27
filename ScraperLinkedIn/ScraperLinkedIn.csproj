@@ -221,6 +221,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AccountsRepository.cs" />
     <Compile Include="Repositories\CompaniesRepository.cs" />
+    <Compile Include="Repositories\Interfaces\IAccountsRepository.cs" />
+    <Compile Include="Repositories\Interfaces\ICompaniesRepository.cs" />
+    <Compile Include="Repositories\Interfaces\ILoggerRepository.cs" />
+    <Compile Include="Repositories\Interfaces\IProfilesRepository.cs" />
+    <Compile Include="Repositories\Interfaces\ISuitableProfileRepository.cs" />
     <Compile Include="Repositories\LoggerRepository.cs" />
     <Compile Include="Repositories\ProfilesRepository.cs" />
     <Compile Include="Repositories\SuitableProfileRepository.cs" />
@@ -228,6 +233,12 @@
     <Compile Include="Services\AccountsService.cs" />
     <Compile Include="Services\CompaniesService.cs" />
     <Compile Include="Services\DataService.cs" />
+    <Compile Include="Services\Interfaces\IAccountsService.cs" />
+    <Compile Include="Services\Interfaces\ICompaniesService.cs" />
+    <Compile Include="Services\Interfaces\IDataService.cs" />
+    <Compile Include="Services\Interfaces\ILoggerService.cs" />
+    <Compile Include="Services\Interfaces\IProfilesService.cs" />
+    <Compile Include="Services\Interfaces\ISuitableProfileService.cs" />
     <Compile Include="Services\LoggerService.cs" />
     <Compile Include="Services\ProfilesService.cs" />
     <Compile Include="Services\SchedulerService.cs" />

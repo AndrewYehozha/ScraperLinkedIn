@@ -2,15 +2,17 @@
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Repositories;
 using ScraperLinkedIn.Types;
+using ScraperLinkedIn.Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using Profile = ScraperLinkedIn.Database.Profile;
+using ScraperLinkedIn.Repositories.Interfaces;
 
 namespace ScraperLinkedIn.Services
 {
-    class ProfilesService
+    class ProfilesService : IProfilesService
     {
-        private ProfilesRepository _profilesRepository;
+        private IProfilesRepository _profilesRepository;
 
         public ProfilesService()
         {

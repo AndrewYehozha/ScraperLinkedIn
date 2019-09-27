@@ -1,6 +1,7 @@
 ﻿using ScraperLinkedIn.Scheduler;
 using ScraperLinkedIn.Scrapers;
 using ScraperLinkedIn.Services;
+using ScraperLinkedIn.Services.Interfaces;
 using ScraperLinkedIn.Types;
 
 namespace ScraperLinkedIn.WinService
@@ -8,8 +9,8 @@ namespace ScraperLinkedIn.WinService
     class MyService
     {
         private Scraper _scraper;
-        private LoggerService _loggerService;
-        private AccountsService _accountsService;
+        private ILoggerService _loggerService;
+        private IAccountsService _accountsService;
 
         public MyService()
         {
@@ -28,7 +29,6 @@ namespace ScraperLinkedIn.WinService
             }
 
             var settings = _accountsService.GetAccountSettings();
-            _scraper.Run(settings);
 
             switch (settings.IntervalType)
             {

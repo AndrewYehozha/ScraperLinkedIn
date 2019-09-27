@@ -3,12 +3,14 @@ using ScraperLinkedIn.Database.ObjectMappers;
 using System.Collections.Generic;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Repositories;
+using ScraperLinkedIn.Services.Interfaces;
+using ScraperLinkedIn.Repositories.Interfaces;
 
 namespace ScraperLinkedIn.Services
 {
-    class SuitableProfileService
+    class SuitableProfileService : ISuitableProfileService
     {
-        private SuitableProfileRepository _suitableProfileRepository;
+        private ISuitableProfileRepository _suitableProfileRepository;
 
         public SuitableProfileService()
         {

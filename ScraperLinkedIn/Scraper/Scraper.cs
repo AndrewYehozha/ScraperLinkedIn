@@ -7,6 +7,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Services;
+using ScraperLinkedIn.Services.Interfaces;
 using ScraperLinkedIn.Types;
 
 namespace ScraperLinkedIn.Scrapers
@@ -17,11 +18,11 @@ namespace ScraperLinkedIn.Scrapers
         private IWebDriver driver;
         private IJavaScriptExecutor js;
 
-        private AccountsService _accountsService;
-        private CompaniesService _companyService;
-        private ProfilesService _profilesService;
-        private DataService _dataService;
-        private LoggerService _loggerService;
+        private IAccountsService _accountsService;
+        private ICompaniesService _companyService;
+        private IProfilesService _profilesService;
+        private IDataService _dataService;
+        private ILoggerService _loggerService;
 
         private int CompanyBatchSize;
         private int ProfileBatchSize;
