@@ -64,6 +64,13 @@
           <Property Name="ProfileStatusID" Type="int" Nullable="false" />
           <Property Name="StatusName" Type="nvarchar" MaxLength="75" Nullable="false" />
         </EntityType>
+        <EntityType Name="ScraperStatuses">
+          <Key>
+            <PropertyRef Name="ScraperStatusID" />
+          </Key>
+          <Property Name="ScraperStatusID" Type="int" Nullable="false" />
+          <Property Name="StatusName" Type="nvarchar" MaxLength="75" Nullable="false" />
+        </EntityType>
         <EntityType Name="Settings">
           <Key>
             <PropertyRef Name="Id" />
@@ -79,7 +86,7 @@
           <Property Name="Password" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="TechnologiesSearch" Type="nvarchar(max)" Nullable="false" />
           <Property Name="RolesSearch" Type="nvarchar(max)" Nullable="false" />
-          <Property Name="AccountID" Type="int" Nullable="false" />
+          <Property Name="ScraperStatusID" Type="int" Nullable="false" />
           <Property Name="DateUpdate" Type="datetime" Nullable="false" />
         </EntityType>
         <EntityType Name="SuitableProfiles">
@@ -156,12 +163,25 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Settings_ScraperStatuses">
+          <End Role="ScraperStatuses" Type="Self.ScraperStatuses" Multiplicity="1" />
+          <End Role="Settings" Type="Self.Settings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ScraperStatuses">
+              <PropertyRef Name="ScraperStatusID" />
+            </Principal>
+            <Dependent Role="Settings">
+              <PropertyRef Name="ScraperStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="ScraperLinkedInDBModelStoreContainer">
           <EntitySet Name="Companies" EntityType="Self.Companies" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DebugLogs" EntityType="Self.DebugLogs" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ExecutionStatuses" EntityType="Self.ExecutionStatuses" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Profiles" EntityType="Self.Profiles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ProfileStatuses" EntityType="Self.ProfileStatuses" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ScraperStatuses" EntityType="Self.ScraperStatuses" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Settings" EntityType="Self.Settings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SuitableProfiles" EntityType="Self.SuitableProfiles" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_Companies_ExecutionStatuses" Association="Self.FK_Companies_ExecutionStatuses">
@@ -179,6 +199,10 @@
           <AssociationSet Name="FK_Profiles_ProfileStatuses" Association="Self.FK_Profiles_ProfileStatuses">
             <End Role="ProfileStatuses" EntitySet="ProfileStatuses" />
             <End Role="Profiles" EntitySet="Profiles" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Settings_ScraperStatuses" Association="Self.FK_Settings_ScraperStatuses">
+            <End Role="ScraperStatuses" EntitySet="ScraperStatuses" />
+            <End Role="Settings" EntitySet="Settings" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -324,6 +348,11 @@
           </AssociationSet>
           <EntitySet Name="SuitableProfiles" EntityType="ScraperLinkedInDBModel.SuitableProfile" />
           <EntitySet Name="Settings" EntityType="ScraperLinkedInDBModel.Setting" />
+          <EntitySet Name="ScraperStatuses" EntityType="ScraperLinkedInDBModel.ScraperStatus" />
+          <AssociationSet Name="FK_Settings_ScraperStatuses" Association="ScraperLinkedInDBModel.FK_Settings_ScraperStatuses">
+            <End Role="ScraperStatus" EntitySet="ScraperStatuses" />
+            <End Role="Setting" EntitySet="Settings" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="SuitableProfile">
           <Key>
@@ -363,12 +392,33 @@
           <Property Name="CompanyBatchSize" Type="Int32" Nullable="false" />
           <Property Name="ProfileBatchSize" Type="Int32" Nullable="false" />
           <Property Name="Password" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="AccountID" Type="Int32" Nullable="false" />
           <Property Name="DateUpdate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Login" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="TechnologiesSearch" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="RolesSearch" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ScraperStatusID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="ScraperStatus" Relationship="ScraperLinkedInDBModel.FK_Settings_ScraperStatuses" FromRole="Setting" ToRole="ScraperStatus" />
         </EntityType>
+        <EntityType Name="ScraperStatus">
+          <Key>
+            <PropertyRef Name="ScraperStatusID" />
+          </Key>
+          <Property Name="ScraperStatusID" Type="Int32" Nullable="false" />
+          <Property Name="StatusName" Type="String" Nullable="false" MaxLength="75" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Settings" Relationship="ScraperLinkedInDBModel.FK_Settings_ScraperStatuses" FromRole="ScraperStatus" ToRole="Setting" />
+        </EntityType>
+        <Association Name="FK_Settings_ScraperStatuses">
+          <End Type="ScraperLinkedInDBModel.ScraperStatus" Role="ScraperStatus" Multiplicity="1" />
+          <End Type="ScraperLinkedInDBModel.Setting" Role="Setting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ScraperStatus">
+              <PropertyRef Name="ScraperStatusID" />
+            </Principal>
+            <Dependent Role="Setting">
+              <PropertyRef Name="ScraperStatusID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -469,11 +519,11 @@
           <EntitySetMapping Name="Settings">
             <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Setting">
               <MappingFragment StoreEntitySet="Settings">
+                <ScalarProperty Name="ScraperStatusID" ColumnName="ScraperStatusID" />
                 <ScalarProperty Name="RolesSearch" ColumnName="RolesSearch" />
                 <ScalarProperty Name="TechnologiesSearch" ColumnName="TechnologiesSearch" />
                 <ScalarProperty Name="Login" ColumnName="Login" />
                 <ScalarProperty Name="DateUpdate" ColumnName="DateUpdate" />
-                <ScalarProperty Name="AccountID" ColumnName="AccountID" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="ProfileBatchSize" ColumnName="ProfileBatchSize" />
                 <ScalarProperty Name="CompanyBatchSize" ColumnName="CompanyBatchSize" />
@@ -482,6 +532,14 @@
                 <ScalarProperty Name="IntervalType" ColumnName="IntervalType" />
                 <ScalarProperty Name="TimeStart" ColumnName="TimeStart" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ScraperStatuses">
+            <EntityTypeMapping TypeName="ScraperLinkedInDBModel.ScraperStatus">
+              <MappingFragment StoreEntitySet="ScraperStatuses">
+                <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+                <ScalarProperty Name="ScraperStatusID" ColumnName="ScraperStatusID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -22,9 +22,9 @@ namespace ScraperLinkedIn.Services
             _accountsService = new AccountsService();
         }
 
-        public async void SearchSuitableDirectorsCompanies(IEnumerable<CompanyEmployeesViewModel> companiesEmployees)
+        public void SearchSuitableDirectorsCompanies(IEnumerable<CompanyEmployeesViewModel> companiesEmployees)
         {
-            var settings = await _accountsService.GetAccountSettingsAsync();
+            var settings = _accountsService.GetAccountSettings();
             var rolesSearch = settings != null ? settings.RolesSearch.Split(',') : new string[] { };
 
             foreach (var companyEmployees in companiesEmployees)
@@ -87,36 +87,38 @@ namespace ScraperLinkedIn.Services
                     if (string.IsNullOrEmpty(fullName.Trim()))
                         continue;
 
-                    var founderProfile = companyEmployees.Employees.Where(x => x.FullName == fullName).FirstOrDefault();
+                    var founderProfile = companyEmployees.Employees.Where(x => x.FullName == fullName && x.ProfileStatus == ProfileStatuses.Chief).FirstOrDefault();
 
-                    var emails = !string.IsNullOrEmpty(fullName.Trim()) ? _emailGenerator.GetValidEmails(fullName.Trim().Split(' ')[0], fullName.Trim().Split(' ')[1], companyEmployees.Website)
-                        : founderProfile != null ? _emailGenerator.GetValidEmails(founderProfile.FirstName, founderProfile.LastName, companyEmployees.Website) : new List<string>();
+                    if (founderProfile == null)
+                    {
+                        var emails = !string.IsNullOrEmpty(fullName.Trim()) ? _emailGenerator.GetValidEmails(fullName.Trim().Split(' ')[0], fullName.Trim().Split(' ')[1], companyEmployees.Website) : new List<string>();
 
-                    result.Add(
-                        new ResultViewModel
-                        {
-                            FirstName = fullName.Trim().Split(' ')[0],
-                            LastName = fullName.Trim().Split(' ')[1],
-                            Job = "Founder",
-                            PersonLinkedIn = founderProfile != null ? founderProfile.ProfileUrl : "...",
-                            Company = companyEmployees.OrganizationName,
-                            Website = companyEmployees.Website,
-                            CompanyLogoUrl = companyEmployees.LogoCompanyUrl,
-                            CrunchUrl = companyEmployees.OrganizationNameURL,
-                            Email = emails.Count > 0 ? emails.FirstOrDefault() : "...",
-                            EmailStatus = emails.Count > 0 && emails.Count < 4 ? "OK" : "...",
-                            City = location.Count() > 0 ? location[0] : "...",
-                            State = location.Count() > 1 ? location[1] : "...",
-                            Country = location.Count() > 2 ? location[2] : "...",
-                            PhoneNumber = companyEmployees.PhoneNumber,
-                            AmountEmployees = companyEmployees.NumberofEmployees,
-                            Industry = companyEmployees.Categories,
-                            Twitter = companyEmployees.Twitter,
-                            Facebook = companyEmployees.Facebook,
-                            //CompanySpecialties = companyEmployees.Specialties,
-                            TechStack = string.Join(", ", technologiesStack)
-                        }
-                   );
+                        result.Add(
+                            new ResultViewModel
+                            {
+                                FirstName = fullName.Trim().Split(' ')[0],
+                                LastName = fullName.Trim().Split(' ')[1],
+                                Job = "Founder",
+                                PersonLinkedIn = "...",
+                                Company = companyEmployees.OrganizationName,
+                                Website = companyEmployees.Website,
+                                CompanyLogoUrl = companyEmployees.LogoCompanyUrl,
+                                CrunchUrl = companyEmployees.OrganizationNameURL,
+                                Email = emails.Count > 0 ? emails.FirstOrDefault() : "...",
+                                EmailStatus = emails.Count > 0 && emails.Count < 4 ? "OK" : "...",
+                                City = location.Count() > 0 ? location[0] : "...",
+                                State = location.Count() > 1 ? location[1] : "...",
+                                Country = location.Count() > 2 ? location[2] : "...",
+                                PhoneNumber = companyEmployees.PhoneNumber,
+                                AmountEmployees = companyEmployees.NumberofEmployees,
+                                Industry = companyEmployees.Categories,
+                                Twitter = companyEmployees.Twitter,
+                                Facebook = companyEmployees.Facebook,
+                                //CompanySpecialties = companyEmployees.Specialties,
+                                TechStack = string.Join(", ", technologiesStack)
+                            }
+                       );
+                    }
                 }
 
                 //After company scraped company data processing

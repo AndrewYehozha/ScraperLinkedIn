@@ -1,13 +1,12 @@
 ﻿using ScraperLinkedIn.Database;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ScraperLinkedIn.Repositories
 {
     class SuitableProfileRepository
     {
-        public async Task AddSuitableProfileAsync(IEnumerable<SuitableProfile> suitableProfiles)
+        public void AddSuitableProfile(IEnumerable<SuitableProfile> suitableProfiles)
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
@@ -37,7 +36,7 @@ namespace ScraperLinkedIn.Repositories
                     db.SuitableProfiles.Add(suitableProfile);
                 }
 
-                await db.SaveChangesAsync();
+                db.SaveChanges();
             }
         }
     }

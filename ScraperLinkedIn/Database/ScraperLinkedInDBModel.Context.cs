@@ -32,5 +32,6 @@ namespace ScraperLinkedIn.Database
         public virtual DbSet<ProfileStatus> ProfileStatuses { get; set; }
         public virtual DbSet<SuitableProfile> SuitableProfiles { get; set; }
         public virtual DbSet<Setting> Settings { get; set; }
+        public virtual DbSet<ScraperStatus> ScraperStatuses { get; set; }
     }
 }

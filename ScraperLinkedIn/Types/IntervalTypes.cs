@@ -1,6 +1,6 @@
 ﻿namespace ScraperLinkedIn.Types
 {
-    public enum IntervalTypes
+    public enum IntervalTypes : byte
     {
         Undefined = 0,
         Day = 1,

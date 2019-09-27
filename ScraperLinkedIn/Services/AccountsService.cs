@@ -2,7 +2,7 @@
 using ScraperLinkedIn.Database.ObjectMappers;
 using ScraperLinkedIn.Models;
 using ScraperLinkedIn.Repositories;
-using System.Threading.Tasks;
+using ScraperLinkedIn.Types;
 
 namespace ScraperLinkedIn.Services
 {
@@ -15,11 +15,16 @@ namespace ScraperLinkedIn.Services
             _accountsRepository = new AccountsRepository();
         }
 
-        public async Task<SettingsViewModel> GetAccountSettingsAsync()
+        public SettingsViewModel GetAccountSettings()
         {
-            var settings = await _accountsRepository.GetAccountSettingsAsync();
+            var settings = _accountsRepository.GetAccountSettings();
 
             return MapperConfigurationModel.Instance.Map<Setting, SettingsViewModel>(settings);
+        }
+
+        public void UpdateScraperStatus(ScraperStatuses scraperStatus)
+        {
+            _accountsRepository.UpdateScraperStatus((int)scraperStatus);
         }
     }
 }

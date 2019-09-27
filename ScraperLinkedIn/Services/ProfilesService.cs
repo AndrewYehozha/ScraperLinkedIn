@@ -4,7 +4,6 @@ using ScraperLinkedIn.Repositories;
 using ScraperLinkedIn.Types;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Profile = ScraperLinkedIn.Database.Profile;
 
 namespace ScraperLinkedIn.Services
@@ -18,36 +17,37 @@ namespace ScraperLinkedIn.Services
             _profilesRepository = new ProfilesRepository();
         }
 
-        public async Task<IEnumerable<ProfileViewModel>> GetProfilesAsync(int profile_batch_size)
+        public IEnumerable<ProfileViewModel> GetProfiles(int profile_batch_size)
         {
-            var profiles = await _profilesRepository.GetProfilesAsync(profile_batch_size);
-
-            return MapperConfigurationModel.Instance.Map<IEnumerable<Profile>, IEnumerable<ProfileViewModel>>(profiles);
+            return _profilesRepository.GetProfiles(profile_batch_size);
         }
 
-        public async Task<int> GetCountRawProfilesAsync()
+        public int GetCountRawProfiles()
         {
-            return await _profilesRepository.GetCountRawProfilesAsync();
+            return _profilesRepository.GetCountRawProfiles();
         }
 
-        public async Task<int> GetCountNewProfilesAsync()
+        public int GetCountNewProfiles()
         {
-            return await _profilesRepository.GetCountNewProfilesAsync();
+            return _profilesRepository.GetCountNewProfiles();
         }
 
-        public async void AddProfiles(IEnumerable<ProfileViewModel> profiles)
+        public void AddProfiles(IEnumerable<ProfileViewModel> profiles)
         {
             if (profiles.Count() > 0)
             {
-                await _profilesRepository.AddProfilesAsync(MapperConfigurationModel.Instance.Map<IEnumerable<ProfileViewModel>, IEnumerable<Profile>>(profiles));
+                _profilesRepository.AddProfiles(MapperConfigurationModel.Instance.Map<IEnumerable<ProfileViewModel>, IEnumerable<Profile>>(profiles));
             }
         }
 
-        public async void UpdateProfile(ProfileViewModel profile, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
+        public void UpdateProfile(ProfileViewModel profile, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
         {
-            profile.ProfileStatus = GetProfileStatus(profile, rolesSearch, technologiesSearch);
+            if (profile.ProfileStatus != ProfileStatuses.Unsuited)
+            {
+                profile.ProfileStatus = GetProfileStatus(profile, rolesSearch, technologiesSearch);
+            }
 
-            await _profilesRepository.UpdateProfileAsync(MapperConfigurationModel.Instance.Map<ProfileViewModel, Profile>(profile));
+            _profilesRepository.UpdateProfile(MapperConfigurationModel.Instance.Map<ProfileViewModel, Profile>(profile));
         }
 
         private ProfileStatuses GetProfileStatus(ProfileViewModel profile, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
@@ -65,9 +65,9 @@ namespace ScraperLinkedIn.Services
             return ProfileStatuses.Unsuited;
         }
 
-        public async void UpdateProfilesExecutionStatusByCompanyID(ExecutionStatuses executionStatus, int companyID)
+        public void UpdateProfilesExecutionStatusByCompanyID(ExecutionStatuses executionStatus, int companyID)
         {
-            await _profilesRepository.UpdateProfilesExecutionStatusByCompanyIDAsync(executionStatus, companyID);
+            _profilesRepository.UpdateProfilesExecutionStatusByCompanyID(executionStatus, companyID);
         }
     }
 }

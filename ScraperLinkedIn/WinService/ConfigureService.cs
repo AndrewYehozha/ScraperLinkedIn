@@ -12,7 +12,8 @@ namespace ScraperLinkedIn.WinService
                 {
                     service.ConstructUsing(s => new MyService());
                     service.WhenStarted(s => s.OnStart());
-                    service.WhenStopped(s => s.OnStop());
+                    service.WhenStopped(s => s.OnStop(false));
+                    service.WhenShutdown(s => s.OnShutdown());
                 });
 
                 //Setup Account that window service use to run.  

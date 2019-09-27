@@ -22,10 +22,12 @@ namespace ScraperLinkedIn.Database
         public int CompanyBatchSize { get; set; }
         public int ProfileBatchSize { get; set; }
         public string Password { get; set; }
-        public int AccountID { get; set; }
         public System.DateTime DateUpdate { get; set; }
         public string Login { get; set; }
         public string TechnologiesSearch { get; set; }
         public string RolesSearch { get; set; }
+        public int ScraperStatusID { get; set; }
+    
+        public virtual ScraperStatus ScraperStatus { get; set; }
     }
 }
