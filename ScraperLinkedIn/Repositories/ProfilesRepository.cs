@@ -17,9 +17,9 @@ namespace ScraperLinkedIn.Repositories
         {
             using (var db = new ScraperLinkedInDBEntities())
             {
-                var result = db.Profiles.Where(x => (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).Take(profile_batch_size);
+                var result = db.Profiles.Where(x => (x.ProfileStatusID == (int)ProfileStatuses.Undefined) && (x.ExecutionStatusID == (int)ExecutionStatuses.Created || x.ExecutionStatusID == (int)ExecutionStatuses.Queued)).OrderBy(x => x.Id).Take(profile_batch_size);
 
-                (result.Where(x => x.ExecutionStatusID == (int)ExecutionStatuses.Created).ToList()).ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
+                result.ToList().ForEach(x => x.ExecutionStatusID = (int)ExecutionStatuses.Queued);
                 db.SaveChanges();
 
                 return MapperConfigurationModel.Instance.Map<IEnumerable<Profile>, IEnumerable<ProfileViewModel>>(result);
@@ -74,7 +74,7 @@ namespace ScraperLinkedIn.Repositories
                 profileDB.FullName = profile.FullName ?? "";
                 profileDB.Job = profile.Job ?? "";
                 profileDB.AllSkills = profile.AllSkills ?? "";
-                profileDB.ExecutionStatusID = profile.ExecutionStatusID;
+                profileDB.ExecutionStatusID = (int)ExecutionStatuses.Queued;
                 profileDB.ProfileStatusID = profile.ProfileStatusID;
                 profileDB.DateСreation = profile.DateСreation;
 

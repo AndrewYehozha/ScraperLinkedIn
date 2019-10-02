@@ -24,10 +24,7 @@ namespace ScraperLinkedIn.Scrapers
         private IDataService _dataService;
         private ILoggerService _loggerService;
 
-        private int CompanyBatchSize;
-        private int ProfileBatchSize;
-        private string Login;
-        private string Password;
+        private SettingsViewModel settings;
 
         public Scraper()
         {
@@ -66,11 +63,7 @@ namespace ScraperLinkedIn.Scrapers
 
         public void Run(SettingsViewModel settings)
         {
-            CompanyBatchSize = settings.CompanyBatchSize;
-            ProfileBatchSize = settings.ProfileBatchSize;
-            Login = settings.Login;
-            Password = settings.Password;
-
+            this.settings = settings;
             var rolesSearch = settings.RolesSearch.Split(',');
             var technologiesSearch = settings.TechnologiesSearch.Split(',');
 
@@ -79,7 +72,7 @@ namespace ScraperLinkedIn.Scrapers
                 _accountsService.UpdateScraperStatus(ScraperStatuses.ON);
                 _loggerService.Add("Connecting to LinkedIn...", "");
 
-                var cookie = new Cookie("li_at", settings.Token, ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
+                var cookie = new Cookie("li_at", settings.Token.Trim(), ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
 
                 try
                 {
@@ -109,7 +102,7 @@ namespace ScraperLinkedIn.Scrapers
                 }
                 catch
                 {
-                    _loggerService.Add("Invalid Token. Please, check the value of <TOKEN> in App.config.");
+                    _loggerService.Add("Invalid Token.");
 
                     if (CheckBrowserErrors() || !SignIn())
                     {
@@ -117,38 +110,44 @@ namespace ScraperLinkedIn.Scrapers
                     }
                 }
 
-                _loggerService.Add("Start scraped data processing", "");
-
-                //Scraped data processing
-                var searchCompanies = _companyService.GetCompaniesForSearch();
-                _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
-
                 //Scraper process
                 _loggerService.Add("Start scraper process", "");
 
                 var rawProfilesCount = _profilesService.GetCountRawProfiles();
 
-                if (rawProfilesCount < ProfileBatchSize)
+                if (rawProfilesCount < settings.ProfileBatchSize)
                 {
                     var newPofilesCount = _profilesService.GetCountNewProfiles();
 
-                    while (newPofilesCount <= ProfileBatchSize * 1.6)
+                    while (newPofilesCount <= settings.ProfileBatchSize * 1.6)
                     {
-                        var companies = _companyService.GetCompanies(CompanyBatchSize);
-                        GetCompaniesEmployees(companies);
+                        var companies = _companyService.GetCompanies(settings.CompanyBatchSize);
+                        if (GetCompaniesEmployees(companies))
+                        {
+                            break;
+                        }
 
                         newPofilesCount = _profilesService.GetCountNewProfiles();
                     }
                 }
                 else
                 {
-                    ProfileBatchSize *= 2;
+                    settings.ProfileBatchSize *= 2;
                 }
 
-                var profiles = _profilesService.GetProfiles(ProfileBatchSize);
+                var profiles = _profilesService.GetProfiles(settings.ProfileBatchSize);
                 GetEmployeeProfiles(profiles, rolesSearch, technologiesSearch);
 
                 _loggerService.Add("End scraper process", "");
+
+
+                //Processing suitable profiles
+                _loggerService.Add("Start processing suitable profiles", "");
+                var searchCompanies = _companyService.GetCompaniesForSearch();
+                _dataService.SearchSuitableDirectorsCompanies(searchCompanies);
+                _loggerService.Add("End processing suitable profiles", "");
+
+
                 _accountsService.UpdateScraperStatus(ScraperStatuses.OFF);
             }
             catch (Exception ex)
@@ -158,10 +157,11 @@ namespace ScraperLinkedIn.Scrapers
             }
         }
 
-        private void GetCompaniesEmployees(IEnumerable<CompanyEmployeesViewModel> companies)
+        private bool GetCompaniesEmployees(IEnumerable<CompanyEmployeesViewModel> companies)
         {
             _loggerService.Add("Companies URLs to scrape", $"[\n{ string.Join(",\n", companies.Select(x => $"\t{ x.LinkedIn }")) }\n]");
 
+            var isError = true;
             foreach (var company in companies)
             {
                 Thread.Sleep(30000); //A break between requests.
@@ -179,7 +179,7 @@ namespace ScraperLinkedIn.Scrapers
 
                 if (CheckBrowserErrors() || !CheckAuthorization())
                 {
-                    return;
+                    return isError;
                 }
 
                 try
@@ -308,7 +308,7 @@ namespace ScraperLinkedIn.Scrapers
                         if (CheckBrowserErrors() || !CheckAuthorization())
                         {
                             _companyService.UpdateCompany(company);
-                            return;
+                            return isError;
                         }
 
                         js.ExecuteScript("window.scrollBy(0,1000)");
@@ -326,22 +326,31 @@ namespace ScraperLinkedIn.Scrapers
                         js.ExecuteScript("window.scrollBy(0,1000)");
                         Thread.Sleep(1000); // Waiting for page to load
 
-                        foreach (var item in driver.FindElements(By.CssSelector(".search-result__info > a"))) // Link selection for employees
+                        try
                         {
-                            string href = item.GetAttribute("href");
-                            if (href != $"{ paginationUrl }&page={ i }#")
+                            foreach (var item in driver.FindElements(By.CssSelector(".search-result__info > a"))) // Link selection for employees
                             {
-                                company.Employees.Add(new ProfileViewModel { ProfileUrl = item.GetAttribute("href"), CompanyID = company.Id });
+                                string href = item.GetAttribute("href");
+                                if (href != $"{ paginationUrl }&page={ i }#")
+                                {
+                                    company.Employees.Add(new ProfileViewModel { ProfileUrl = item.GetAttribute("href"), CompanyID = company.Id });
+                                }
                             }
-                        }
 
-                        _loggerService.Add($"Getting employees for page { i }...");
+                            _loggerService.Add($"Getting employees for page { i }...");
+                        }
+                        catch
+                        {
+                            _loggerService.Add("Error",$"Getting employees for page { i }...");
+                        }
                     }
                 }
 
                 company.ExecutionStatus = ExecutionStatuses.Success;
                 _companyService.UpdateCompany(company);
             }
+
+            return !isError;
         }
 
         private void GetEmployeeProfiles(IEnumerable<ProfileViewModel> employees, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
@@ -350,7 +359,7 @@ namespace ScraperLinkedIn.Scrapers
 
             foreach (var employee in employees)
             {
-                Thread.Sleep(5000); //A break between requests.
+                Thread.Sleep(10000); //A break between requests.
 
                 try
                 {
@@ -505,7 +514,7 @@ namespace ScraperLinkedIn.Scrapers
             try
             {
                 driver.FindElement(By.CssSelector(".join-form-container,.login-form,body > #FunCAPTCHA"));
-                _loggerService.Add("Error", "Invalid Token. Please, check the value of <TOKEN> in App.config.");
+                _loggerService.Add("Error", "Invalid Token");
 
                 return false;
             }
@@ -530,9 +539,9 @@ namespace ScraperLinkedIn.Scrapers
                 Thread.Sleep(3000); //Loading Sign in page
 
                 driver.FindElement(By.Id("username")).Clear();
-                driver.FindElement(By.Id("username")).SendKeys(Login); //Authorization process
+                driver.FindElement(By.Id("username")).SendKeys(settings.Login); //Authorization process
                 Thread.Sleep(500);
-                driver.FindElement(By.Id("password")).SendKeys(Password);
+                driver.FindElement(By.Id("password")).SendKeys(settings.Password);
                 Thread.Sleep(500);
                 driver.FindElement(By.ClassName("btn__primary--large")).Click();
             }

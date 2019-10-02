@@ -27,6 +27,7 @@ namespace ScraperLinkedIn.Database
         public string TechnologiesSearch { get; set; }
         public string RolesSearch { get; set; }
         public int ScraperStatusID { get; set; }
+        public int Localization { get; set; }
     
         public virtual ScraperStatus ScraperStatus { get; set; }
     }

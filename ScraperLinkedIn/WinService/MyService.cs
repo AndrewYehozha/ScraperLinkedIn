@@ -1,8 +1,10 @@
-﻿using ScraperLinkedIn.Scheduler;
+﻿using ScraperLinkedIn.Models;
+using ScraperLinkedIn.Scheduler;
 using ScraperLinkedIn.Scrapers;
 using ScraperLinkedIn.Services;
 using ScraperLinkedIn.Services.Interfaces;
 using ScraperLinkedIn.Types;
+using System.Threading;
 
 namespace ScraperLinkedIn.WinService
 {
@@ -23,11 +25,6 @@ namespace ScraperLinkedIn.WinService
         {
             _loggerService.Add("Scheduler service are starting...", "");
 
-            if (!_scraper.Initialize())
-            {
-                OnStop(true);
-            }
-
             var settings = _accountsService.GetAccountSettings();
 
             switch (settings.IntervalType)
@@ -39,7 +36,7 @@ namespace ScraperLinkedIn.WinService
                     MyScheduler.IntervalInSeconds(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
-                        _scraper.Run(settings);
+                        RunScraper(settings);
                     });
                     break;
                 case IntervalTypes.Hour:
@@ -49,7 +46,7 @@ namespace ScraperLinkedIn.WinService
                     MyScheduler.IntervalInHours(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
-                        _scraper.Run(settings);
+                        RunScraper(settings);
                     });
                     break;
 
@@ -60,7 +57,7 @@ namespace ScraperLinkedIn.WinService
                     MyScheduler.IntervalInDays(settings.TimeStart.Hours, settings.TimeStart.Minutes, settings.IntervalValue,
                     () =>
                     {
-                        _scraper.Run(settings);
+                        RunScraper(settings);
                     });
                     break;
 
@@ -89,6 +86,20 @@ namespace ScraperLinkedIn.WinService
             _loggerService.Add("Scheduler service stopped", "System shutdown");
 
             _accountsService.UpdateScraperStatus(ScraperStatuses.Exception);
+        }
+
+        private void RunScraper(SettingsViewModel settings)
+        {
+            if (!_scraper.Initialize())
+            {
+                OnStop(true);
+            }
+
+            Thread.Sleep(90000);
+
+            _scraper.Run(settings);
+
+            _scraper.Close();
         }
     }
 }
