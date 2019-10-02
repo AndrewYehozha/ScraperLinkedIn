@@ -13,7 +13,6 @@
         public string CrunchUrl { get; set; } //Crunch url
         public string Email { get; set; }
         public string EmailStatus { get; set; }
-        //public string CompanySpecialties { get; set; }
         public string City { get; set; }
         public string State { get; set; }
         public string Country { get; set; }

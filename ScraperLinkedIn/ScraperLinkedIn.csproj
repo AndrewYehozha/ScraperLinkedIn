@@ -60,9 +60,6 @@
     <Reference Include="BouncyCastle.Crypto, Version=1.7.4137.9688, Culture=neutral, PublicKeyToken=a4292a325f69b123, processorArchitecture=MSIL">
       <HintPath>..\packages\BouncyCastle.1.7.0\lib\Net40-Client\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
-    <Reference Include="EmailValidation, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EmailValidator.NET.1.0.5\lib\net45\EmailValidation.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
@@ -212,7 +209,12 @@
     <Compile Include="Database\SuitableProfile.cs">
       <DependentUpon>ScraperLinkedInDBModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="Email\EmailGenerator.cs" />
+    <Compile Include="Email\EmailHandler.cs" />
+    <Compile Include="Email\Validator\EmailValidator.cs" />
+    <Compile Include="Email\Validator\EmailValidatorException.cs" />
+    <Compile Include="Email\Validator\SmtpClient.cs" />
+    <Compile Include="Email\Validator\SmtpClientException.cs" />
+    <Compile Include="Email\Validator\SmtpClientTimeoutException.cs" />
     <Compile Include="Models\CompanyEmployeesViewModel.cs" />
     <Compile Include="Models\ProfileViewModel.cs" />
     <Compile Include="Models\ResultViewModel.cs" />
@@ -244,6 +246,7 @@
     <Compile Include="Services\SchedulerService.cs" />
     <Compile Include="Scraper\Scraper.cs" />
     <Compile Include="Services\SuitableProfileService.cs" />
+    <Compile Include="Types\EmailValidationResult.cs" />
     <Compile Include="Types\ExecutionStatuses.cs" />
     <Compile Include="Types\IntervalTypes.cs" />
     <Compile Include="Types\ProfileStatuses.cs" />
