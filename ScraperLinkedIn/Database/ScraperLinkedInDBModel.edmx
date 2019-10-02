@@ -88,6 +88,7 @@
           <Property Name="RolesSearch" Type="nvarchar(max)" Nullable="false" />
           <Property Name="ScraperStatusID" Type="int" Nullable="false" />
           <Property Name="DateUpdate" Type="datetime" Nullable="false" />
+          <Property Name="Localization" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="SuitableProfiles">
           <Key>
@@ -398,6 +399,7 @@
           <Property Name="RolesSearch" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="ScraperStatusID" Type="Int32" Nullable="false" />
           <NavigationProperty Name="ScraperStatus" Relationship="ScraperLinkedInDBModel.FK_Settings_ScraperStatuses" FromRole="Setting" ToRole="ScraperStatus" />
+          <Property Name="Localization" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="ScraperStatus">
           <Key>
@@ -519,6 +521,7 @@
           <EntitySetMapping Name="Settings">
             <EntityTypeMapping TypeName="ScraperLinkedInDBModel.Setting">
               <MappingFragment StoreEntitySet="Settings">
+                <ScalarProperty Name="Localization" ColumnName="Localization" />
                 <ScalarProperty Name="ScraperStatusID" ColumnName="ScraperStatusID" />
                 <ScalarProperty Name="RolesSearch" ColumnName="RolesSearch" />
                 <ScalarProperty Name="TechnologiesSearch" ColumnName="TechnologiesSearch" />

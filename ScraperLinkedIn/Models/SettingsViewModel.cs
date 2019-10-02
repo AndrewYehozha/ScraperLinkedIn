@@ -17,5 +17,6 @@ namespace ScraperLinkedIn.Models
         public string RolesSearch { get; set; }
         public ScraperStatuses ScraperStatus { get; set; }
         public System.DateTime DateUpdate { get; set; }
+        public int Localization { get; set; }
     }
 }
