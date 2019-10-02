@@ -10,14 +10,14 @@ namespace ScraperLinkedIn.Services
 {
     class DataService : IDataService
     {
-        private EmailGenerator _emailGenerator;
+        private EmailHandler _emailGenerator;
         private IProfilesService _profilesService;
         private ISuitableProfileService _suitableProfileService;
         private IAccountsService _accountsService;
 
         public DataService()
         {
-            _emailGenerator = new EmailGenerator();
+            _emailGenerator = new EmailHandler();
             _profilesService = new ProfilesService();
             _suitableProfileService = new SuitableProfileService();
             _accountsService = new AccountsService();
@@ -77,7 +77,6 @@ namespace ScraperLinkedIn.Services
                             Industry = companyEmployees.Categories,
                             Twitter = companyEmployees.Twitter,
                             Facebook = companyEmployees.Facebook,
-                            //CompanySpecialties = companyEmployees.Specialties,
                             TechStack = string.Join(", ", technologiesStack)
                         }
                     );
@@ -115,7 +114,6 @@ namespace ScraperLinkedIn.Services
                                 Industry = companyEmployees.Categories,
                                 Twitter = companyEmployees.Twitter,
                                 Facebook = companyEmployees.Facebook,
-                                //CompanySpecialties = companyEmployees.Specialties,
                                 TechStack = string.Join(", ", technologiesStack)
                             }
                        );
