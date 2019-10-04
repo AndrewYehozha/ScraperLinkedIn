@@ -72,7 +72,7 @@ namespace ScraperLinkedIn.Scrapers
                 _accountsService.UpdateScraperStatus(ScraperStatuses.ON);
                 _loggerService.Add("Connecting to LinkedIn...", "");
 
-                var cookie = new Cookie("li_at", settings.Token.Trim(), ".www.linkedin.com", "/", DateTime.Now.AddDays(7));
+                var cookie = new Cookie("li_at", settings.Token.Trim(), ".www.linkedin.com", "/", DateTime.MinValue);
 
                 try
                 {
@@ -102,9 +102,7 @@ namespace ScraperLinkedIn.Scrapers
                 }
                 catch
                 {
-                    _loggerService.Add("Invalid Token.");
-
-                    if (CheckBrowserErrors() || !SignIn())
+                    if (!SignIn() || CheckBrowserErrors() || !CheckAuthorization())
                     {
                         return;
                     }
@@ -149,17 +147,19 @@ namespace ScraperLinkedIn.Scrapers
 
 
                 _accountsService.UpdateScraperStatus(ScraperStatuses.OFF);
+
+                _loggerService.Add("Next Scraper run", settings.TimeStart.Add(new TimeSpan(0, 1, 30)).ToString());
             }
             catch (Exception ex)
             {
                 _accountsService.UpdateScraperStatus(ScraperStatuses.Exception);
-                _loggerService.Add("Error Run scraper", ex.ToString());
+                _loggerService.Add("Error run scraper", ex.ToString());
             }
         }
 
         private bool GetCompaniesEmployees(IEnumerable<CompanyEmployeesViewModel> companies)
         {
-            _loggerService.Add("Companies URLs to scrape", $"[\n{ string.Join(",\n", companies.Select(x => $"\t{ x.LinkedIn }")) }\n]");
+            _loggerService.Add("Companies URLs to scrape", $"[ { string.Join(", ", companies.Select(x => $"{ x.LinkedIn }")) } ]");
 
             var isError = true;
             foreach (var company in companies)
@@ -355,7 +355,7 @@ namespace ScraperLinkedIn.Scrapers
 
         private void GetEmployeeProfiles(IEnumerable<ProfileViewModel> employees, IEnumerable<string> rolesSearch, IEnumerable<string> technologiesSearch)
         {
-            _loggerService.Add("Profiles URLs to scrape", $"[\n{ string.Join(",\n", employees.Select(x => $"\t{ x.ProfileUrl }")) }\n]");
+            _loggerService.Add("Profiles URLs to scrape", $"[ { string.Join(", ", employees.Select(x => $"{ x.ProfileUrl }")) } ]");
 
             foreach (var employee in employees)
             {
@@ -458,7 +458,7 @@ namespace ScraperLinkedIn.Scrapers
 
                             try
                             {
-                                js.ExecuteScript("window.scrollBy(0,200)");
+                                js.ExecuteScript("window.scrollBy(0,300)");
                                 Thread.Sleep(500);
                                 driver.FindElement(By.ClassName("pv-skills-section__additional-skills")).Click(); //Find Show more button
                                 js.ExecuteScript("window.scrollBy(0,250)");
@@ -513,7 +513,7 @@ namespace ScraperLinkedIn.Scrapers
         {
             try
             {
-                driver.FindElement(By.CssSelector(".join-form-container,.login-form,body > #FunCAPTCHA"));
+                driver.FindElement(By.CssSelector(".login__form_action_container,.join-form-container,.login-form,body > #FunCAPTCHA"));
                 _loggerService.Add("Error", "Invalid Token");
 
                 return false;
@@ -594,10 +594,7 @@ namespace ScraperLinkedIn.Scrapers
                     chromeDriver.Kill();
                 }
             }
-            catch (Exception ex)
-            {
-                _loggerService.Add("Error", ex.ToString());
-            }
+            catch { }
         }
     }
 }
